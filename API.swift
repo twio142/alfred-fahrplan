@@ -16,6 +16,9 @@ struct Search: Codable, Equatable {
   static func == (lhs: Search, rhs: Search) -> Bool {
     return lhs.SOID == rhs.SOID && lhs.ZOID == rhs.ZOID && lhs.isArrival == rhs.isArrival && lhs.dateTime == rhs.dateTime
   }
+  func copy(SOID: String? = nil, ZOID: String? = nil, dateTime: Date? = nil, isArrival: Bool? = nil, paging: String? = nil) -> Search {
+    return Search(SOID: SOID ?? self.SOID, ZOID: ZOID ?? self.ZOID, dateTime: dateTime ?? self.dateTime, isArrival: isArrival ?? self.isArrival, paging: paging ?? self.paging)
+  }
 }
 
 struct Place: Codable, Equatable {

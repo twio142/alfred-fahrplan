@@ -108,7 +108,7 @@ func setPlace(_ query: String, _ workflow: Workflow, _ group: DispatchGroup, com
       item.arg = "\(startPlace.name) → \(place.name)"
       item.variables["trip"] = "\(startPlace.name) → \(place.name)"
       item.variables["ZOID"] = place.id
-      item.variables["mode"] = "searrchTrips"
+      item.variables["mode"] = "searchTrips"
       item.setMod(.cmd, Item.Mod(arg: "", subtitle: "Zeit angeben …", icon: Item.Icon(path: "./icons/clock.png"), variables: ["mode": "setTime"]))
     } else {
       if favorites.contains(place) {

@@ -19,4 +19,10 @@ func log(_ info: Any...) {
   FileHandle.standardError.write("\n".data(using: .utf8)!)
 }
 
+func debug(_ info: Any...) {
+  if env["debug"] != nil || env["alfred_debug"] != nil {
+    log(info)
+  }
+}
+
 let env = ProcessInfo.processInfo.environment
