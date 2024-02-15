@@ -168,9 +168,6 @@ func listTrips(_ trips: [Trip], _ reference: [String:String]?, _ workflow: Workf
     }
     let expired = (estDepartureTime ?? departureTime) < Date().addingTimeInterval(60)
     var item = Item(title: title, subtitle: tripSubtitle(subtitle), icon: Item.Icon(path: "./icons/trip\(expired ? "_exp" : "").png"), text: Item.Text(copy: timeTable(trip)), variables: ["tripId": trip.id])
-    if !expired {
-      item.setMod(.cmd, Item.Mod(arg: formatter.string(from: estDepartureTime ?? departureTime) + "+7", subtitle: "Wecker stellen (jetzt: \(formatter.string(from: Date())))", icon: Item.Icon(path: "./icons/alarm.png"), variables: ["action": "alarm", "text": env["trip"] ?? ""]))
-    }
     workflow.add(item)
   }
   if let reference = reference {
