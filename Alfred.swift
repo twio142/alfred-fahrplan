@@ -57,6 +57,15 @@ struct Item: Codable {
   enum Action: Codable {
     case string(String)
     case array([String])
+    func encode(to encoder: Encoder) throws {
+      var container = encoder.singleValueContainer()
+      switch self {
+      case .string(let value):
+        try container.encode(value)
+      case .array(let value):
+        try container.encode(value)
+      }
+    }
   }
   var title: String
   var subtitle: String = ""
@@ -66,12 +75,12 @@ struct Item: Codable {
   var text: Text?
   var variables: [String: String] = [:]
   var mods: [String: Mod] = [:]
-  var actions: [String: Action] = [:]
+  var action: [String: Action] = [:]
 
   mutating func setMod(_ key: ModKey, _ mod: Mod) {
     mods[key.rawValue] = mod
   }
-  mutating func setAction(_ key: ActionType, _ action: Action) {
-    actions[key.rawValue] = action
+  mutating func setAction(_ key: ActionType, _ value: Action) {
+    action[key.rawValue] = value
   }
 }
