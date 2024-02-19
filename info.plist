@@ -35,7 +35,7 @@
 		<array>
 			<dict>
 				<key>destinationuid</key>
-				<string>67D31461-3D20-412A-A770-4007494F2F5E</string>
+				<string>CA4397E0-B55A-436D-AD20-FA3F81BF25A8</string>
 				<key>modifiers</key>
 				<integer>0</integer>
 				<key>modifiersubtext</key>
@@ -60,13 +60,11 @@
 			</dict>
 			<dict>
 				<key>destinationuid</key>
-				<string>A3BB9614-C1CA-4B36-A590-AE6991BA336C</string>
+				<string>67D31461-3D20-412A-A770-4007494F2F5E</string>
 				<key>modifiers</key>
 				<integer>0</integer>
 				<key>modifiersubtext</key>
 				<string></string>
-				<key>sourceoutputuid</key>
-				<string>6C2499AD-7E1A-49F6-987D-70E67A9D1550</string>
 				<key>vitoclose</key>
 				<false/>
 			</dict>
@@ -205,7 +203,7 @@
 						<key>inputstring</key>
 						<string>{var:action}</string>
 						<key>matchcasesensitive</key>
-						<false/>
+						<true/>
 						<key>matchmode</key>
 						<integer>1</integer>
 						<key>matchstring</key>
@@ -229,19 +227,10 @@
 			<integer>1</integer>
 		</dict>
 		<dict>
-			<key>config</key>
-			<dict>
-				<key>argument</key>
-				<string>'{query}', {variables}</string>
-				<key>cleardebuggertext</key>
-				<false/>
-				<key>processoutputs</key>
-				<true/>
-			</dict>
 			<key>type</key>
-			<string>alfred.workflow.utility.debug</string>
+			<string>alfred.workflow.utility.hidealfred</string>
 			<key>uid</key>
-			<string>5AACDECE-D55E-4D1D-8C16-C2A1637C9827</string>
+			<string>A3BB9614-C1CA-4B36-A590-AE6991BA336C</string>
 			<key>version</key>
 			<integer>1</integer>
 		</dict>
@@ -339,26 +328,39 @@
 			<key>xpos</key>
 			<real>190</real>
 			<key>ypos</key>
-			<real>45</real>
+			<real>75</real>
 		</dict>
 		<key>CA4397E0-B55A-436D-AD20-FA3F81BF25A8</key>
 		<dict>
 			<key>xpos</key>
-			<real>155</real>
+			<real>200</real>
 			<key>ypos</key>
 			<real>50</real>
 		</dict>
 	</dict>
 	<key>userconfigurationconfig</key>
-	<array/>
-	<key>variables</key>
-	<dict>
-		<key>home</key>
-		<string>Tübingen, Charlottenstraße 8</string>
-	</dict>
-	<key>variablesdontexport</key>
 	<array>
-		<string>home</string>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>default</key>
+				<string></string>
+				<key>placeholder</key>
+				<string></string>
+				<key>required</key>
+				<false/>
+				<key>trim</key>
+				<true/>
+			</dict>
+			<key>description</key>
+			<string></string>
+			<key>label</key>
+			<string>Home Address</string>
+			<key>type</key>
+			<string>textfield</string>
+			<key>variable</key>
+			<string>home</string>
+		</dict>
 	</array>
 	<key>version</key>
 	<string>2.0</string>
