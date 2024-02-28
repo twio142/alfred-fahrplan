@@ -6,7 +6,7 @@ func formatDuration(_ seconds: Int) -> String? {
   if hours == 0 && minutes == 0 {
     return nil
   }
-  return String(format: "%s%d min", hours > 0 ? "\(hours) h " : "", minutes)
+  return String(format: "%@%d min", hours > 0 ? "\(hours) h " : "", minutes)
 }
 
 func tripSubtitle(_ parts: [String]) -> String {
