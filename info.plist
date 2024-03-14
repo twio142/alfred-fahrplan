@@ -20,16 +20,6 @@
 				<key>vitoclose</key>
 				<true/>
 			</dict>
-			<dict>
-				<key>destinationuid</key>
-				<string>5AACDECE-D55E-4D1D-8C16-C2A1637C9827</string>
-				<key>modifiers</key>
-				<integer>0</integer>
-				<key>modifiersubtext</key>
-				<string></string>
-				<key>vitoclose</key>
-				<false/>
-			</dict>
 		</array>
 		<key>8EDAFA8C-E295-4C2D-908C-093AF60B390B</key>
 		<array>
@@ -75,6 +65,18 @@
 				<integer>0</integer>
 				<key>modifiersubtext</key>
 				<string></string>
+				<key>vitoclose</key>
+				<false/>
+			</dict>
+			<dict>
+				<key>destinationuid</key>
+				<string>FFC39109-E3B3-4D63-B5AE-BF718C96F187</string>
+				<key>modifiers</key>
+				<integer>0</integer>
+				<key>modifiersubtext</key>
+				<string></string>
+				<key>sourceoutputuid</key>
+				<string>6C2499AD-7E1A-49F6-987D-70E67A9D1550</string>
 				<key>vitoclose</key>
 				<false/>
 			</dict>
@@ -171,7 +173,7 @@
 			<key>type</key>
 			<string>alfred.workflow.utility.hidealfred</string>
 			<key>uid</key>
-			<string>A3BB9614-C1CA-4B36-A590-AE6991BA336C</string>
+			<string>FFC39109-E3B3-4D63-B5AE-BF718C96F187</string>
 			<key>version</key>
 			<integer>1</integer>
 		</dict>
@@ -223,14 +225,6 @@
 			<string>alfred.workflow.utility.conditional</string>
 			<key>uid</key>
 			<string>CA4397E0-B55A-436D-AD20-FA3F81BF25A8</string>
-			<key>version</key>
-			<integer>1</integer>
-		</dict>
-		<dict>
-			<key>type</key>
-			<string>alfred.workflow.utility.hidealfred</string>
-			<key>uid</key>
-			<string>A3BB9614-C1CA-4B36-A590-AE6991BA336C</string>
 			<key>version</key>
 			<integer>1</integer>
 		</dict>
@@ -295,13 +289,6 @@
 			<key>ypos</key>
 			<real>15</real>
 		</dict>
-		<key>5AACDECE-D55E-4D1D-8C16-C2A1637C9827</key>
-		<dict>
-			<key>xpos</key>
-			<real>190</real>
-			<key>ypos</key>
-			<real>90</real>
-		</dict>
 		<key>67D31461-3D20-412A-A770-4007494F2F5E</key>
 		<dict>
 			<key>xpos</key>
@@ -314,21 +301,14 @@
 			<key>xpos</key>
 			<real>30</real>
 			<key>ypos</key>
-			<real>45</real>
+			<real>30</real>
 		</dict>
 		<key>8EDAFA8C-E295-4C2D-908C-093AF60B390B</key>
 		<dict>
 			<key>xpos</key>
 			<real>30</real>
 			<key>ypos</key>
-			<real>150</real>
-		</dict>
-		<key>A3BB9614-C1CA-4B36-A590-AE6991BA336C</key>
-		<dict>
-			<key>xpos</key>
-			<real>190</real>
-			<key>ypos</key>
-			<real>75</real>
+			<real>135</real>
 		</dict>
 		<key>CA4397E0-B55A-436D-AD20-FA3F81BF25A8</key>
 		<dict>
@@ -336,6 +316,13 @@
 			<real>200</real>
 			<key>ypos</key>
 			<real>50</real>
+		</dict>
+		<key>FFC39109-E3B3-4D63-B5AE-BF718C96F187</key>
+		<dict>
+			<key>xpos</key>
+			<real>235</real>
+			<key>ypos</key>
+			<real>45</real>
 		</dict>
 	</dict>
 	<key>userconfigurationconfig</key>

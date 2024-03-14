@@ -96,7 +96,7 @@ func timeTable(_ trip: Trip) -> String {
   return table
 }
 
-func cacheData(_ key: String, _ data: DataToCache) {
+func writeCache(_ key: String, _ data: DataToCache) {
   if let cacheDir = env["alfred_workflow_cache"] {
     let url = URL(fileURLWithPath: cacheDir).appendingPathComponent(key)
     let encoder = JSONEncoder()
@@ -105,16 +105,16 @@ func cacheData(_ key: String, _ data: DataToCache) {
     do {
       try data.write(to: url)
     } catch {
-      log("Error writing to file \(url.path): \(error.localizedDescription)\n".data(using: .utf8)!)
+      log("Error writing to file \(url.path): \(error.localizedDescription)")
     }
   } else {
-    log("cacheDir not set\n".data(using: .utf8)!)
+    log("cacheDir not set")
   }
 }
 
-func cachedData(_ key: String) -> DataToCache? {
-  let fileManager = FileManager.default
+func readCache(_ key: String) -> DataToCache? {
   if let cacheDir = env["alfred_workflow_cache"] {
+    let fileManager = FileManager.default
     let url = URL(fileURLWithPath: cacheDir).appendingPathComponent(key)
     if fileManager.fileExists(atPath: url.path) {
       do {
@@ -122,20 +122,20 @@ func cachedData(_ key: String) -> DataToCache? {
         let decoder = JSONDecoder()
         decoder.dateDecodingStrategy = .iso8601
         guard let data = try? decoder.decode(DataToCache.self, from: data) else {
-          log("Error decoding data from file \(url.path)\n".data(using: .utf8)!)
+          log("Error decoding data from file \(url.path)")
           return nil
         }
         return data
       } catch {
-        log("Error reading from file \(url.path)\n".data(using: .utf8)!)
+        log("Error reading from file \(url.path)")
         return nil
       }
     } else {
-      log("File not found at path \(url.path)\n".data(using: .utf8)!)
+      log("File not found \(url.path)")
       return nil
     }
   } else {
-    log("cacheDir not set\n".data(using: .utf8)!)
+    log("cacheDir not set")
     return nil
   }
 }
