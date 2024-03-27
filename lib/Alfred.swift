@@ -21,9 +21,6 @@ class Workflow {
   func warnEmpty(_ title: String, _ subtitle: String = "") {
     items = [Item(title: title, subtitle: subtitle, valid: false, icon: Workflow.alertIcon)]
   }
-  func setVar(_ key: String, _ value: String) {
-    variables[key] = value
-  }
 }
 
 struct Item: Codable {
@@ -82,5 +79,8 @@ struct Item: Codable {
   }
   mutating func setAction(_ key: ActionType, _ value: Action) {
     action[key.rawValue] = value
+  }
+  mutating func setVar(_ key: String, _ value: String) {
+    variables[key] = value
   }
 }

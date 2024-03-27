@@ -18,8 +18,8 @@ func tripSubtitle(_ parts: [String]) -> String {
   if parts[0].count + parts[1].count + parts[2].count > lineLength - 10 {
     return parts[0] + "  ---  " + parts[1] + "  -->  " + parts[2]
   }
-  let x1 = lineLength / 2 - parts[0].count - parts[1].count / 2 - 4
-  let x2 = lineLength / 2 - parts[2].count - parts[1].count / 2 - 5
+  let x1 = max(1, lineLength / 2 - parts[0].count - parts[1].count / 2 - 4)
+  let x2 = max(1, lineLength / 2 - parts[2].count - parts[1].count / 2 - 5)
   var subtitle = parts[0] + "  "
   for _ in 0..<x1 {
     subtitle += "-"
