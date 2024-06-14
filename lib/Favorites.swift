@@ -23,7 +23,7 @@ func getHome(_ group: DispatchGroup, completion: @escaping(Result<Place, MyError
     do {
       let lines = try String(contentsOf: url, encoding: .utf8).components(separatedBy: CharacterSet.newlines)
       if lines[0] == home, lines.count > 1, lines[1].firstIndex(of: "@") != nil {
-        completion(.success(Place(id: lines[1], name: "Home🏠")))
+        completion(.success(Place(id: lines[1], name: "Home")))
         return
       } else {
         throw MyError("Home not found")
@@ -37,7 +37,7 @@ func getHome(_ group: DispatchGroup, completion: @escaping(Result<Place, MyError
             return
           }
           var place = places[0]
-          place.name = "Home🏠"
+          place.name = "Home"
           do {
             try "\(home)\n\(place.id)".write(to: url, atomically: true, encoding: .utf8)
           } catch {
