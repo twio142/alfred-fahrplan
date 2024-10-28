@@ -56,6 +56,15 @@ struct Trip: Codable {
   let duration: Int
   let estDuration: Int?
   let warnings: [String]?
+  func getTripString() -> String {
+    guard let firstSegment = segments.first,
+          let lastSegment = segments.last,
+          let departure = firstSegment.departure,
+          let arrival = lastSegment.arrival else {
+      return ""
+    }
+    return "\(departure.place) → \(arrival.place)"
+  }
 }
 
 struct Segment: Codable {
@@ -130,7 +139,7 @@ func searchTrips(_ search: Search, _ group: DispatchGroup, completion: @escaping
     "produktgattungen": ["ICE","EC_IC","IR","REGIONAL","SBAHN","BUS","SCHIFF","UBAHN","TRAM","ANRUFPFLICHTIG"],
     "reisende": [["typ":"ERWACHSENER","ermaessigungen":[["art":"KEINE_ERMAESSIGUNG","klasse":"KLASSENLOS"]],"alter":[],"anzahl":1]],
     "schnelleVerbindungen": true,
-    ]
+  ]
   if let paging = paging {
     parameters["pagingReference"] = paging
   }
