@@ -6,18 +6,27 @@ struct Search: Codable, Equatable {
   let isArrival: Bool
   let dateTime: Date
   var paging: String? = nil
-  init(SOID: String, ZOID: String, dateTime: Date? = nil, isArrival: Bool? = false, paging: String? = nil) {
+  init(
+    SOID: String, ZOID: String, dateTime: Date? = nil, isArrival: Bool? = false,
+    paging: String? = nil
+  ) {
     self.SOID = SOID
     self.ZOID = ZOID
-    self.dateTime = dateTime ?? Date().addingTimeInterval(60*2)
+    self.dateTime = dateTime ?? Date().addingTimeInterval(60 * 2)
     self.isArrival = isArrival ?? false
     self.paging = paging
   }
   static func == (lhs: Search, rhs: Search) -> Bool {
-    return lhs.SOID == rhs.SOID && lhs.ZOID == rhs.ZOID && lhs.isArrival == rhs.isArrival && lhs.dateTime == rhs.dateTime
+    return lhs.SOID == rhs.SOID && lhs.ZOID == rhs.ZOID && lhs.isArrival == rhs.isArrival
+      && lhs.dateTime == rhs.dateTime
   }
-  func copy(SOID: String? = nil, ZOID: String? = nil, dateTime: Date? = nil, isArrival: Bool? = nil, paging: String? = nil) -> Search {
-    return Search(SOID: SOID ?? self.SOID, ZOID: ZOID ?? self.ZOID, dateTime: dateTime ?? self.dateTime, isArrival: isArrival ?? self.isArrival, paging: paging ?? self.paging)
+  func copy(
+    SOID: String? = nil, ZOID: String? = nil, dateTime: Date? = nil, isArrival: Bool? = nil,
+    paging: String? = nil
+  ) -> Search {
+    return Search(
+      SOID: SOID ?? self.SOID, ZOID: ZOID ?? self.ZOID, dateTime: dateTime ?? self.dateTime,
+      isArrival: isArrival ?? self.isArrival, paging: paging ?? self.paging)
   }
 }
 
@@ -58,9 +67,10 @@ struct Trip: Codable {
   let warnings: [String]?
   func getTripString() -> String {
     guard let firstSegment = segments.first,
-          let lastSegment = segments.last,
-          let departure = firstSegment.departure,
-          let arrival = lastSegment.arrival else {
+      let lastSegment = segments.last,
+      let departure = firstSegment.departure,
+      let arrival = lastSegment.arrival
+    else {
       return ""
     }
     return "\(departure.place) → \(arrival.place)"
@@ -89,11 +99,12 @@ struct Segment: Codable {
 struct DataToCache: Codable {
   let search: Search
   var trips: [Trip]
-  var reference: [String:String]
+  var reference: [String: String]
 }
 
 func searchPlaces(_ query: String, _ group: DispatchGroup, completion: @escaping (Result<[Place], MyError>) -> Void) {
-  guard let encodedQuery = query.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) else {
+  guard let encodedQuery = query.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)
+  else {
     completion(.failure(.message("1: Invalid Query")))
     return
   }
@@ -104,7 +115,7 @@ func searchPlaces(_ query: String, _ group: DispatchGroup, completion: @escaping
       group.leave()
     }
     if let error = error {
-      completion(.failure(.message("2: "+error.localizedDescription)))
+      completion(.failure(.message("2: " + error.localizedDescription)))
       return
     }
     guard let data = data else {
@@ -122,8 +133,15 @@ func searchPlaces(_ query: String, _ group: DispatchGroup, completion: @escaping
   task.resume()
 }
 
-func searchTrips(_ search: Search, _ group: DispatchGroup, completion: @escaping (Result<(trips: [Trip], reference: [String:String]), MyError>) -> Void) {
-  let SOID = search.SOID, ZOID = search.ZOID, dateTime = search.dateTime, isArrival = search.isArrival, paging = search.paging
+func searchTrips(
+  _ search: Search, _ group: DispatchGroup,
+  completion: @escaping (Result<(trips: [Trip], reference: [String: String]), MyError>) -> Void
+) {
+  let SOID = search.SOID
+  let ZOID = search.ZOID
+  let dateTime = search.dateTime
+  let isArrival = search.isArrival
+  let paging = search.paging
   let url = URL(string: "https://www.bahn.de/web/api/angebote/fahrplan")!
   let formatter = ISO8601DateFormatter()
   var request = URLRequest(url: url)
@@ -136,8 +154,17 @@ func searchTrips(_ search: Search, _ group: DispatchGroup, completion: @escaping
     "ankunftsHalt": ZOID,
     "ankunftSuche": isArrival ? "ANKUNFT" : "ABFAHRT",
     "klasse": "KLASSE_2",
-    "produktgattungen": ["ICE","EC_IC","IR","REGIONAL","SBAHN","BUS","SCHIFF","UBAHN","TRAM","ANRUFPFLICHTIG"],
-    "reisende": [["typ":"ERWACHSENER","ermaessigungen":[["art":"KEINE_ERMAESSIGUNG","klasse":"KLASSENLOS"]],"alter":[],"anzahl":1]],
+    "produktgattungen": [
+      "ICE", "EC_IC", "IR", "REGIONAL", "SBAHN", "BUS", "SCHIFF", "UBAHN", "TRAM", "ANRUFPFLICHTIG",
+    ],
+    "reisende": [
+      [
+        "typ": "ERWACHSENER",
+        "ermaessigungen": [["art": "KEINE_ERMAESSIGUNG", "klasse": "KLASSENLOS"]],
+        "alter": [],
+        "anzahl": 1,
+      ]
+    ],
     "schnelleVerbindungen": true,
   ]
   if let paging = paging {
@@ -150,7 +177,7 @@ func searchTrips(_ search: Search, _ group: DispatchGroup, completion: @escaping
       group.leave()
     }
     if let error = error {
-      completion(.failure(.message("5: "+error.localizedDescription)))
+      completion(.failure(.message("5: " + error.localizedDescription)))
       return
     }
     guard let data = data else {
@@ -163,19 +190,22 @@ func searchTrips(_ search: Search, _ group: DispatchGroup, completion: @escaping
     }
     do {
       if let dict = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any] {
-        guard let verbindungen = dict["verbindungen"] as? [[String:Any]],
-          let reference = dict["verbindungReference"] as? [String:String] else {
+        guard let verbindungen = dict["verbindungen"] as? [[String: Any]],
+          let reference = dict["verbindungReference"] as? [String: String]
+        else {
           completion(.failure(.message("JSON parsing error")))
           return
         }
         let trips = verbindungen.map { (t) -> Trip? in
-          guard let verbindungsAbschnitte = t["verbindungsAbschnitte"] as? [[String:Any]] else {
+          guard let verbindungsAbschnitte = t["verbindungsAbschnitte"] as? [[String: Any]] else {
             log("Segments init failed")
             return nil
           }
           let segments = verbindungsAbschnitte.map { (s) -> Segment? in
             var segment = Segment(duration: s["abschnittsDauer"] as? Int ?? 0)
-            if let verkehrsmittel = s["verkehrsmittel"] as? [String:Any], let name = verkehrsmittel["name"] as? String {
+            if let verkehrsmittel = s["verkehrsmittel"] as? [String: Any],
+              let name = verkehrsmittel["name"] as? String
+            {
               segment.by = Segment.By(name: name)
               if let distance = s["distanz"] as? Int {
                 segment.by!.distance = distance
@@ -193,8 +223,10 @@ func searchTrips(_ search: Search, _ group: DispatchGroup, completion: @escaping
             if let place = s["abfahrtsOrt"] as? String,
               let timeString = s["abfahrtsZeitpunkt"] as? String,
               let time = formatter.date(from: timeString + "Z"),
-              let halte = s["halte"] as? [[String:Any]] {
-              segment.departure = Segment.Stop(place: place, time: time, platform: halte.first?["gleis"] as? String)
+              let halte = s["halte"] as? [[String: Any]]
+            {
+              segment.departure = Segment.Stop(
+                place: place, time: time, platform: halte.first?["gleis"] as? String)
               if let estTimeString = s["ezAbfahrtsZeitpunkt"] as? String {
                 segment.departure!.estTime = formatter.date(from: estTimeString + "Z")
               }
@@ -205,8 +237,10 @@ func searchTrips(_ search: Search, _ group: DispatchGroup, completion: @escaping
             if let place = s["ankunftsOrt"] as? String,
               let timeString = s["ankunftsZeitpunkt"] as? String,
               let time = formatter.date(from: timeString + "Z"),
-              let halte = s["halte"] as? [[String:Any]] {
-              segment.arrival = Segment.Stop(place: place, time: time, platform: halte.last?["gleis"] as? String)
+              let halte = s["halte"] as? [[String: Any]]
+            {
+              segment.arrival = Segment.Stop(
+                place: place, time: time, platform: halte.last?["gleis"] as? String)
               if let estTimeString = s["ezAnkunftsZeitpunkt"] as? String {
                 segment.arrival!.estTime = formatter.date(from: estTimeString + "Z")
               }
@@ -216,11 +250,18 @@ func searchTrips(_ search: Search, _ group: DispatchGroup, completion: @escaping
             }
             return segment
           }.compactMap { $0 }
-          guard let id = t["tripId"] as? String, let duration = t["verbindungsDauerInSeconds"] as? Int, let estDuration = t["ezVerbindungsDauerInSeconds"] as? Int?, let changes = t["umstiegsAnzahl"] as? Int, let warnings = t["meldungen"] as? [String]? else {
+          guard let id = t["tripId"] as? String,
+                let duration = t["verbindungsDauerInSeconds"] as? Int,
+                let estDuration = t["ezVerbindungsDauerInSeconds"] as? Int?,
+                let changes = t["umstiegsAnzahl"] as? Int,
+                let warnings = t["meldungen"] as? [String]?
+          else {
             log("Trip init failed")
             return nil
           }
-          let trip = Trip(id: id, segments: segments, changes: changes, duration: duration, estDuration: estDuration, warnings: warnings)
+          let trip = Trip(
+            id: id, segments: segments, changes: changes, duration: duration,
+            estDuration: estDuration, warnings: warnings)
           return trip
         }.compactMap { $0 }
         completion(.success((trips, reference)))

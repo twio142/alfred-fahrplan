@@ -17,11 +17,12 @@ func favoritePlaces() -> [Place] {
   }
 }
 
-func getHome(_ group: DispatchGroup, completion: @escaping(Result<Place, MyError>) -> Void) {
+func getHome(_ group: DispatchGroup, completion: @escaping (Result<Place, MyError>) -> Void) {
   if let home = env["home"] {
     let url = URL(fileURLWithPath: "./home.txt")
     do {
-      let lines = try String(contentsOf: url, encoding: .utf8).components(separatedBy: CharacterSet.newlines)
+      let lines = try String(contentsOf: url, encoding: .utf8).components(
+        separatedBy: CharacterSet.newlines)
       if lines[0] == home, lines.count > 1, lines[1].firstIndex(of: "@") != nil {
         completion(.success(Place(id: lines[1], name: "Home")))
         return
@@ -61,7 +62,8 @@ func savePlace(_ placeId: String) {
     if !fileManager.fileExists(atPath: url.path) {
       try "".write(to: url, atomically: true, encoding: .utf8)
     }
-    var lines = try String(contentsOf: url, encoding: .utf8).components(separatedBy: CharacterSet.newlines)
+    var lines = try String(contentsOf: url, encoding: .utf8).components(
+      separatedBy: CharacterSet.newlines)
     if lines.contains(placeId) {
       return
     }
@@ -80,7 +82,8 @@ func removePlace(_ placeId: String) {
     if !fileManager.fileExists(atPath: url.path) {
       return
     }
-    var lines = try String(contentsOf: url, encoding: .utf8).components(separatedBy: CharacterSet.newlines)
+    var lines = try String(contentsOf: url, encoding: .utf8).components(
+      separatedBy: CharacterSet.newlines)
     if !lines.contains(placeId) {
       return
     }

@@ -1,7 +1,8 @@
 import Foundation
 
 class Workflow {
-  static let alertIcon = Item.Icon(path: (env["alfred_preferences"] ?? "../..") + "/resources/AlertCautionIcon.icns")
+  static let alertIcon = Item.Icon(
+    path: (env["alfred_preferences"] ?? "../..") + "/resources/AlertCautionIcon.icns")
   var items: [Item] = []
   var variables: [String: String] = [:]
   struct DataToEncode: Codable {

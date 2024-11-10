@@ -143,6 +143,9 @@ func readCache(_ key: String) -> DataToCache? {
 func notify(_ message: String, title: String = "Fahrplan", subtitle: String = "") {
   let task = Process()
   task.launchPath = "/opt/homebrew/bin/terminal-notifier"
-  task.arguments = ["-title", title, "-subtitle", subtitle, "-message", message, "-sender", "com.runningwithcrayons.Alfred", "-contentImage", "./icon.png"]
+  task.arguments = [
+    "-title", title, "-subtitle", subtitle, "-message", message, "-sender",
+    "com.runningwithcrayons.Alfred", "-contentImage", "./icon.png",
+  ]
   task.launch()
 }
