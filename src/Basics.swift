@@ -3,8 +3,9 @@ import Foundation
 struct MyError: Error {
   let localizedDescription: String
   init(_ message: String) {
-    self.localizedDescription = message
+    localizedDescription = message
   }
+
   static func message(_ message: String) -> MyError {
     return MyError(message)
   }

@@ -3,7 +3,7 @@ import Foundation
 func formatDuration(_ seconds: Int) -> String? {
   let hours = seconds / 3600
   let minutes = (seconds % 3600) / 60
-  if hours == 0 && minutes == 0 {
+  if hours == 0, minutes == 0 {
     return nil
   }
   return String(format: "%@%d min", hours > 0 ? "\(hours) h " : "", minutes)
@@ -21,11 +21,11 @@ func tripSubtitle(_ parts: [String]) -> String {
   let x1 = max(1, lineLength / 2 - parts[0].count - parts[1].count / 2 - 4)
   let x2 = max(1, lineLength / 2 - parts[2].count - parts[1].count / 2 - 5)
   var subtitle = parts[0] + "  "
-  for _ in 0..<x1 {
+  for _ in 0 ..< x1 {
     subtitle += "-"
   }
   subtitle += "  " + parts[1] + "  "
-  for _ in 0..<x2 {
+  for _ in 0 ..< x2 {
     subtitle += "-"
   }
   subtitle += ">  " + parts[2]
@@ -56,22 +56,22 @@ func segmentSubtitle(_ segment: Segment) -> String {
 
 func timeTable(_ trip: Trip) -> String {
   /*
-  Hamburg Hbf  ->  Saafbrücken Hbf
-  ====
-  12:28	Hamburg Hbf (Gl. 8)
-                  ICE 777
-  16:56	Frankfurt(Main)Hbf (Gl. 13)
-  ----
-  17:26	Frankfurt(Main)Hbf (Gl. 18)
-                  RE 3
-  20:13	Saafbrücken Hbf
-  */
+   Hamburg Hbf  ->  Saafbrücken Hbf
+   ====
+   12:28	Hamburg Hbf (Gl. 8)
+                   ICE 777
+   16:56	Frankfurt(Main)Hbf (Gl. 13)
+   ----
+   17:26	Frankfurt(Main)Hbf (Gl. 18)
+                   RE 3
+   20:13	Saafbrücken Hbf
+   */
   let formatter = DateFormatter()
   formatter.dateFormat = "HH:mm"
 
   var table = "\(trip.segments.first!.departure!.place)  →  \(trip.segments.last!.arrival!.place)\n"
   table += "====\n"
-  trip.segments.forEach { (segment) in
+  for segment in trip.segments {
     if let departure = segment.departure {
       table += "\(formatter.string(from: departure.time))\t\(departure.place)"
       if let platform = departure.platform {

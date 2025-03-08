@@ -16,17 +16,20 @@ struct Search: Codable, Equatable {
     self.isArrival = isArrival ?? false
     self.paging = paging
   }
+
   static func == (lhs: Search, rhs: Search) -> Bool {
     return lhs.SOID == rhs.SOID && lhs.ZOID == rhs.ZOID && lhs.isArrival == rhs.isArrival
       && lhs.dateTime == rhs.dateTime
   }
+
   func copy(
     SOID: String? = nil, ZOID: String? = nil, dateTime: Date? = nil, isArrival: Bool? = nil,
     paging: String? = nil
   ) -> Search {
     return Search(
       SOID: SOID ?? self.SOID, ZOID: ZOID ?? self.ZOID, dateTime: dateTime ?? self.dateTime,
-      isArrival: isArrival ?? self.isArrival, paging: paging ?? self.paging)
+      isArrival: isArrival ?? self.isArrival, paging: paging ?? self.paging
+    )
   }
 }
 
@@ -53,6 +56,7 @@ struct Place: Codable, Equatable {
       self.type = "ADR"
     }
   }
+
   static func == (lhs: Place, rhs: Place) -> Bool {
     return lhs.id == rhs.id
   }
@@ -67,9 +71,9 @@ struct Trip: Codable {
   let warnings: [String]?
   func getTripString() -> String {
     guard let firstSegment = segments.first,
-      let lastSegment = segments.last,
-      let departure = firstSegment.departure,
-      let arrival = lastSegment.arrival
+          let lastSegment = segments.last,
+          let departure = firstSegment.departure,
+          let arrival = lastSegment.arrival
     else {
       return ""
     }
@@ -84,12 +88,14 @@ struct Segment: Codable {
     var estTime: Date?
     var platform: String?
   }
+
   struct By: Codable {
     var distance: Int?
     let name: String
     var shortName: String?
     var direction: String?
   }
+
   var departure: Stop?
   var arrival: Stop?
   var by: By?
@@ -110,7 +116,7 @@ func searchPlaces(_ query: String, _ group: DispatchGroup, completion: @escaping
   }
   let url = URL(string: "https://www.bahn.de/web/api/reiseloesung/orte?suchbegriff=\(encodedQuery)&typ=ALL&limit=10")!
   group.enter()
-  let task = URLSession.shared.dataTask(with: url) { (data, response, error) in
+  let task = URLSession.shared.dataTask(with: url) { data, _, error in
     defer {
       group.leave()
     }
@@ -163,7 +169,7 @@ func searchTrips(
         "ermaessigungen": [["art": "KEINE_ERMAESSIGUNG", "klasse": "KLASSENLOS"]],
         "alter": [],
         "anzahl": 1,
-      ]
+      ],
     ],
     "schnelleVerbindungen": true,
   ]
@@ -172,7 +178,7 @@ func searchTrips(
   }
   request.httpBody = try? JSONSerialization.data(withJSONObject: parameters, options: [])
   group.enter()
-  let task = URLSession.shared.dataTask(with: request) { (data, response, error) in
+  let task = URLSession.shared.dataTask(with: request) { data, response, error in
     defer {
       group.leave()
     }
@@ -191,20 +197,20 @@ func searchTrips(
     do {
       if let dict = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any] {
         guard let verbindungen = dict["verbindungen"] as? [[String: Any]],
-          let reference = dict["verbindungReference"] as? [String: String]
+              let reference = dict["verbindungReference"] as? [String: String]
         else {
           completion(.failure(.message("JSON parsing error")))
           return
         }
-        let trips = verbindungen.map { (t) -> Trip? in
+        let trips = verbindungen.map { t -> Trip? in
           guard let verbindungsAbschnitte = t["verbindungsAbschnitte"] as? [[String: Any]] else {
             log("Segments init failed")
             return nil
           }
-          let segments = verbindungsAbschnitte.map { (s) -> Segment? in
+          let segments = verbindungsAbschnitte.map { s -> Segment? in
             var segment = Segment(duration: s["abschnittsDauer"] as? Int ?? 0)
             if let verkehrsmittel = s["verkehrsmittel"] as? [String: Any],
-              let name = verkehrsmittel["name"] as? String
+               let name = verkehrsmittel["name"] as? String
             {
               segment.by = Segment.By(name: name)
               if let distance = s["distanz"] as? Int {
@@ -221,12 +227,13 @@ func searchTrips(
               return nil
             }
             if let place = s["abfahrtsOrt"] as? String,
-              let timeString = s["abfahrtsZeitpunkt"] as? String,
-              let time = formatter.date(from: timeString + "Z"),
-              let halte = s["halte"] as? [[String: Any]]
+               let timeString = s["abfahrtsZeitpunkt"] as? String,
+               let time = formatter.date(from: timeString + "Z"),
+               let halte = s["halte"] as? [[String: Any]]
             {
               segment.departure = Segment.Stop(
-                place: place, time: time, platform: halte.first?["gleis"] as? String)
+                place: place, time: time, platform: halte.first?["gleis"] as? String
+              )
               if let estTimeString = s["ezAbfahrtsZeitpunkt"] as? String {
                 segment.departure!.estTime = formatter.date(from: estTimeString + "Z")
               }
@@ -235,12 +242,13 @@ func searchTrips(
               return nil
             }
             if let place = s["ankunftsOrt"] as? String,
-              let timeString = s["ankunftsZeitpunkt"] as? String,
-              let time = formatter.date(from: timeString + "Z"),
-              let halte = s["halte"] as? [[String: Any]]
+               let timeString = s["ankunftsZeitpunkt"] as? String,
+               let time = formatter.date(from: timeString + "Z"),
+               let halte = s["halte"] as? [[String: Any]]
             {
               segment.arrival = Segment.Stop(
-                place: place, time: time, platform: halte.last?["gleis"] as? String)
+                place: place, time: time, platform: halte.last?["gleis"] as? String
+              )
               if let estTimeString = s["ezAnkunftsZeitpunkt"] as? String {
                 segment.arrival!.estTime = formatter.date(from: estTimeString + "Z")
               }
@@ -261,7 +269,8 @@ func searchTrips(
           }
           let trip = Trip(
             id: id, segments: segments, changes: changes, duration: duration,
-            estDuration: estDuration, warnings: warnings)
+            estDuration: estDuration, warnings: warnings
+          )
           return trip
         }.compactMap { $0 }
         completion(.success((trips, reference)))

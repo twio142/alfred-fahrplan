@@ -5,7 +5,7 @@ func favoritePlaces() -> [Place] {
   do {
     let data = try String(contentsOf: url, encoding: .utf8)
     let lines = data.components(separatedBy: .newlines)
-    let places = lines.map { (line) -> Place? in
+    let places = lines.map { line -> Place? in
       if let part = line.components(separatedBy: "@").first(where: { $0.starts(with: "O=") }) {
         return Place(id: line, name: String(part.dropFirst(2)))
       }
@@ -30,9 +30,9 @@ func getHome(_ group: DispatchGroup, completion: @escaping (Result<Place, MyErro
         throw MyError("Home not found")
       }
     } catch {
-      searchPlaces(home, group) { (result) in
+      searchPlaces(home, group) { result in
         switch result {
-        case .success(let places):
+        case let .success(places):
           if places.count == 0 {
             completion(.failure(.message("Home not found")))
             return
@@ -45,7 +45,7 @@ func getHome(_ group: DispatchGroup, completion: @escaping (Result<Place, MyErro
             log("Error writing to file \(url.path): \(error.localizedDescription)")
           }
           completion(.success(place))
-        case .failure(let error):
+        case let .failure(error):
           completion(.failure(error))
         }
       }

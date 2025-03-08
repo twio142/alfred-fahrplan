@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>bundleid</key>
-	<string>com.nyako520.fahrplan</string>
+	<string>com.twio142.fahrplan</string>
 	<key>category</key>
 	<string>Internet</string>
 	<key>connections</key>
@@ -83,7 +83,7 @@
 		</array>
 	</dict>
 	<key>createdby</key>
-	<string>nyako520</string>
+	<string>twio142</string>
 	<key>description</key>
 	<string>Deutsche Bahn Reiseauskunft</string>
 	<key>disabled</key>

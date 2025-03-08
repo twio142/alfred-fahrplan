@@ -3,22 +3,23 @@ import Foundation
 func setTime(_ query: String, _ workflow: Workflow) {
   var dateTime = Date()
   guard let regex1 = try? NSRegularExpression(pattern: "([0123]?\\d)\\.([012]?\\d)", options: []),
-    let regex2 = try? NSRegularExpression(pattern: "([012]?\\d):(\\d{2})?", options: []),
-    let regex3 = try? NSRegularExpression(pattern: "\\+(\\d+)([mhd])?", options: [])
+        let regex2 = try? NSRegularExpression(pattern: "([012]?\\d):(\\d{2})?", options: []),
+        let regex3 = try? NSRegularExpression(pattern: "\\+(\\d+)([mhd])?", options: [])
   else {
     return
   }
   let matches1 = regex1.matches(
-    in: query, options: [], range: NSRange(query.startIndex..., in: query))
+    in: query, options: [], range: NSRange(query.startIndex..., in: query)
+  )
   if matches1.count > 0 {
     let match = matches1[0]
     if let range = Range(match.range(at: 2), in: query), let number = Int(query[range]),
-      0 < number && number < 13
+       number > 0, number < 13
     {
       dateTime = Calendar.current.date(bySetting: .month, value: number, of: dateTime)!
     }
     if let range = Range(match.range(at: 1), in: query), let number = Int(query[range]),
-      0 < number && number < 32
+       number > 0, number < 32
     {
       dateTime = Calendar.current.date(bySetting: .day, value: number, of: dateTime)!
     }
@@ -27,17 +28,17 @@ func setTime(_ query: String, _ workflow: Workflow) {
     }
   }
   let matches2 = regex2.matches(
-    in: query, options: [], range: NSRange(query.startIndex..., in: query))
+    in: query, options: [], range: NSRange(query.startIndex..., in: query)
+  )
   if matches2.count > 0 {
     let match = matches2[0]
     var hour = 0
     var minute = 0
-    if let range = Range(match.range(at: 1), in: query), let number = Int(query[range]), number < 24
-    {
+    if let range = Range(match.range(at: 1), in: query), let number = Int(query[range]), number < 24 {
       hour = number
     }
     if match.range(at: 2).location != NSNotFound, let range = Range(match.range(at: 2), in: query),
-      let number = Int(query[range]), number < 60
+       let number = Int(query[range]), number < 60
     {
       minute = number
     }
@@ -47,7 +48,8 @@ func setTime(_ query: String, _ workflow: Workflow) {
     }
   }
   let matches3 = regex3.matches(
-    in: query, options: [], range: NSRange(query.startIndex..., in: query))
+    in: query, options: [], range: NSRange(query.startIndex..., in: query)
+  )
   for match in matches3 {
     var number = 0
     var unit = "m"
@@ -59,7 +61,8 @@ func setTime(_ query: String, _ workflow: Workflow) {
     }
     if number > 0 {
       dateTime = Calendar.current.date(
-        byAdding: unit == "m" ? .minute : unit == "h" ? .hour : .day, value: number, to: dateTime)!
+        byAdding: unit == "m" ? .minute : unit == "h" ? .hour : .day, value: number, to: dateTime
+      )!
     }
   }
   let formatter = DateFormatter()
@@ -70,12 +73,15 @@ func setTime(_ query: String, _ workflow: Workflow) {
   let isoDateTime = ISO8601DateFormatter().string(from: dateTime)
   var item = Item(
     title: title, subtitle: "Abfahrt", icon: Item.Icon(path: "./icons/clock.png"),
-    variables: ["mode": "searchTrips", "dateTime": isoDateTime])
+    variables: ["mode": "searchTrips", "dateTime": isoDateTime]
+  )
   item.setMod(
     .cmd,
     Item.Mod(
       subtitle: "Ankunft",
-      variables: ["mode": "searchTrips", "dateTime": isoDateTime, "isArrival": "true"]))
+      variables: ["mode": "searchTrips", "dateTime": isoDateTime, "isArrival": "true"]
+    )
+  )
   workflow.add(item)
 }
 
@@ -86,8 +92,8 @@ func setPlace(
   let favorites = favoritePlaces()
   var places = favorites
   var home = nil as Place?
-  getHome(group) { (result) in
-    if case .success(let place) = result {
+  getHome(group) { result in
+    if case let .success(place) = result {
       home = place
       places.append(place)
     }
@@ -97,14 +103,14 @@ func setPlace(
     places = places.filter { $0.name.lowercased().contains(query.lowercased()) }
   }
   if query.count > 5 {
-    searchPlaces(query, group) { (result) in
-      if case .success(let newPlaces) = result {
-        places += newPlaces.filter({ place in !places.contains(place) })
+    searchPlaces(query, group) { result in
+      if case let .success(newPlaces) = result {
+        places += newPlaces.filter { place in !places.contains(place) }
       }
     }
     group.wait()
   }
-  var startPlace: Place? = nil
+  var startPlace: Place?
   if let SOID = env["SOID"] {
     startPlace = Place(id: SOID)
     if let home = home, home.id == SOID {
@@ -112,7 +118,7 @@ func setPlace(
     }
     places = places.filter { $0 != startPlace }
   }
-  places.forEach { (place) in
+  for place in places {
     var item = Item(title: place.name)
     if let home = home, place == home {
       item.icon = Item.Icon(path: "./icons/home.png")
@@ -134,20 +140,26 @@ func setPlace(
         .cmd,
         Item.Mod(
           arg: "", subtitle: "Zeit angeben …", icon: Item.Icon(path: "./icons/clock.png"),
-          variables: modVars))
+          variables: modVars
+        )
+      )
     } else {
       if favorites.contains(place) {
         item.setMod(
           .shift,
           Item.Mod(
             arg: place.id, subtitle: "Von Favoriten entfernen",
-            icon: Item.Icon(path: "./icons/trash.png"), variables: ["action": "removePlace"]))
+            icon: Item.Icon(path: "./icons/trash.png"), variables: ["action": "removePlace"]
+          )
+        )
       } else {
         item.setMod(
           .shift,
           Item.Mod(
             arg: place.id, subtitle: "Zu Favoriten speichern",
-            icon: Item.Icon(path: "./icons/favorite.png"), variables: ["action": "savePlace"]))
+            icon: Item.Icon(path: "./icons/favorite.png"), variables: ["action": "savePlace"]
+          )
+        )
       }
       item.setVar("SOID", place.id)
     }
@@ -159,17 +171,17 @@ func setPlace(
 func listTrips(_ trips: [Trip], _ reference: [String: String]?, _ workflow: Workflow) {
   let formatter = DateFormatter()
   formatter.dateFormat = "HH:mm"
-  trips.forEach { (trip) in
+  for trip in trips {
     var title = ""
     var subtitle: [String] = []
     let departureTime = trip.segments.first!.departure!.time
     title += formatter.string(from: departureTime)
     let estDepartureTime = trip.segments.first!.departure!.estTime
     if Date().timeIntervalSince(estDepartureTime ?? departureTime) > 600 {
-      return
+      continue
     }
     if let estDepartureTime = estDepartureTime,
-      let delay = formatDuration(Int(estDepartureTime.timeIntervalSince(departureTime)))
+       let delay = formatDuration(Int(estDepartureTime.timeIntervalSince(departureTime)))
     {
       title += " (+\(delay))"
     }
@@ -177,7 +189,7 @@ func listTrips(_ trips: [Trip], _ reference: [String: String]?, _ workflow: Work
     let arrivalTime = trip.segments.last!.arrival!.time
     title += formatter.string(from: arrivalTime)
     if let estArrivalTime = trip.segments.last!.arrival!.estTime,
-      let delay = formatDuration(Int(estArrivalTime.timeIntervalSince(arrivalTime)))
+       let delay = formatDuration(Int(estArrivalTime.timeIntervalSince(arrivalTime)))
     {
       title += " (+\(delay))"
     }
@@ -193,7 +205,7 @@ func listTrips(_ trips: [Trip], _ reference: [String: String]?, _ workflow: Work
     } else {
       subtitle.append(trip.segments.first!.departure!.place)
     }
-    let products = trip.segments.filter { $0.by!.name != "Fußweg" }.map { (segment) in
+    let products = trip.segments.filter { $0.by!.name != "Fußweg" }.map { segment in
       if let shortName = segment.by!.shortName, ["Bus", "S", "U"].contains(shortName) {
         return segment.by!.name
       }
@@ -220,55 +232,62 @@ func listTrips(_ trips: [Trip], _ reference: [String: String]?, _ workflow: Work
   } else if let reference = reference {
     var item = Item(
       title: "Mehr Verbindungen", subtitle: "Später", icon: Item.Icon(path: "./icons/next.png"),
-      variables: ["paging": reference["later"]!, "mode": "searchTrips"])
+      variables: ["paging": reference["later"]!, "mode": "searchTrips"]
+    )
     item.setMod(
       .cmd,
       Item.Mod(
         subtitle: "Früher", icon: Item.Icon(path: "./icons/previous.png"),
-        variables: ["paging": reference["earlier"]!, "mode": "searchTrips"]))
+        variables: ["paging": reference["earlier"]!, "mode": "searchTrips"]
+      )
+    )
     let newDateTime = ISO8601DateFormatter().string(from: Date().addingTimeInterval(60 * 2))
     item.setMod(
       .alt,
       Item.Mod(
         subtitle: "Neue Suche", icon: Item.Icon(path: "./icons/rerun.png"),
-        variables: ["mode": "searchTrips", "dateTime": newDateTime, "paging": ""]))
+        variables: ["mode": "searchTrips", "dateTime": newDateTime, "paging": ""]
+      )
+    )
     workflow.add(item)
   }
 }
 
 func showTrip(_ trip: Trip, _ workflow: Workflow) {
   /*
-  12:28 (+7)  Hamburg Hbf (Gl. 8)
-  4h 21 min   ICE 777 (nach Frankfurt(Main)Hbf)
-  16:56       Frankfurt(Main)Hbf (Gl. 13)
-  30 min      Umstieg
-  17:26       Frankfurt(Main)Hbf (Gl. 18)
-  2h 47min    RE 3 (nach Saafbrücken Hbf)
-  20:13       Saafbrücken Hbf
-  5 min       154m Fußweg (ca. 4min)
-  20:18       Hauptbahnhof, Saarbrücken
-  9 min       STB 1 (nach Brebach)
-  20:27       Kieselhumes, Saarbrücken
-              142m Fußweg (ca. 3min)
-  20:30       Saarbrücken - Sankt Johann, Straße des 13. Januar 12
-  */
-  trip.segments.enumerated().forEach { index, segment in
+   12:28 (+7)  Hamburg Hbf (Gl. 8)
+   4h 21 min   ICE 777 (nach Frankfurt(Main)Hbf)
+   16:56       Frankfurt(Main)Hbf (Gl. 13)
+   30 min      Umstieg
+   17:26       Frankfurt(Main)Hbf (Gl. 18)
+   2h 47min    RE 3 (nach Saafbrücken Hbf)
+   20:13       Saafbrücken Hbf
+   5 min       154m Fußweg (ca. 4min)
+   20:18       Hauptbahnhof, Saarbrücken
+   9 min       STB 1 (nach Brebach)
+   20:27       Kieselhumes, Saarbrücken
+               142m Fußweg (ca. 3min)
+   20:30       Saarbrücken - Sankt Johann, Straße des 13. Januar 12
+   */
+  for (index, segment) in trip.segments.enumerated() {
     if segment.by!.name != "Fußweg" || index == trip.segments.count - 1 {
       if segment.by!.name != "Fußweg" {
         workflow.add(
           Item(
             title: segmentTitle(segment.departure!), subtitle: segmentSubtitle(segment),
             arg: env["trip"] ?? "", text: Item.Text(copy: timeTable(trip)),
-            variables: ["tripId": ""]))
+            variables: ["tripId": ""]
+          ))
       }
       var item = Item(
         title: segmentTitle(segment.arrival!), arg: env["trip"] ?? "",
-        text: Item.Text(copy: timeTable(trip)))
+        text: Item.Text(copy: timeTable(trip))
+      )
       if index < trip.segments.count - 1 {
         let nextSegment = trip.segments[index + 1]
         item.subtitle =
           formatDuration(Int(nextSegment.departure!.time.timeIntervalSince(segment.arrival!.time)))
-          ?? "      "
+            ?? "      "
         item.subtitle += "\t"
         if nextSegment.by!.name == "Fußweg" {
           item.subtitle += "\(nextSegment.by!.distance!)m Fußweg"
