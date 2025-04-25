@@ -3,8 +3,8 @@
 .DS_Store
 .envrc
 test.swift
-Fahrplan
 *.txt
 prefs.plist
 icons/
 icon.png
+make.log
