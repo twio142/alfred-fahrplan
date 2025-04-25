@@ -149,14 +149,16 @@ func searchTrips(
   let isArrival = search.isArrival
   let paging = search.paging
   let url = URL(string: "https://www.bahn.de/web/api/angebote/fahrplan")!
-  let formatter = ISO8601DateFormatter()
+  let formatter = DateFormatter()
+  formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss"
+  formatter.timeZone = TimeZone.current
   var request = URLRequest(url: url)
   request.httpMethod = "POST"
   request.addValue("application/json; charset=UTF-8", forHTTPHeaderField: "Content-Type")
   request.addValue("de", forHTTPHeaderField: "Accept-Language")
   var parameters: [String: Any] = [
     "abfahrtsHalt": SOID,
-    "anfrageZeitpunkt": String(formatter.string(from: dateTime).dropLast()),
+    "anfrageZeitpunkt": formatter.string(from: dateTime),
     "ankunftsHalt": ZOID,
     "ankunftSuche": isArrival ? "ANKUNFT" : "ABFAHRT",
     "klasse": "KLASSE_2",
@@ -202,6 +204,9 @@ func searchTrips(
           completion(.failure(.message("JSON parsing error")))
           return
         }
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss"
+        formatter.timeZone = TimeZone.current
         let trips = verbindungen.map { t -> Trip? in
           guard let verbindungsAbschnitte = t["verbindungsAbschnitte"] as? [[String: Any]] else {
             log("Segments init failed")
@@ -228,14 +233,14 @@ func searchTrips(
             }
             if let place = s["abfahrtsOrt"] as? String,
                let timeString = s["abfahrtsZeitpunkt"] as? String,
-               let time = formatter.date(from: timeString + "Z"),
+               let time = formatter.date(from: timeString),
                let halte = s["halte"] as? [[String: Any]]
             {
               segment.departure = Segment.Stop(
                 place: place, time: time, platform: halte.first?["gleis"] as? String
               )
               if let estTimeString = s["ezAbfahrtsZeitpunkt"] as? String {
-                segment.departure!.estTime = formatter.date(from: estTimeString + "Z")
+                segment.departure!.estTime = formatter.date(from: estTimeString)
               }
             } else {
               log("Departure init failed")
@@ -243,14 +248,14 @@ func searchTrips(
             }
             if let place = s["ankunftsOrt"] as? String,
                let timeString = s["ankunftsZeitpunkt"] as? String,
-               let time = formatter.date(from: timeString + "Z"),
+               let time = formatter.date(from: timeString),
                let halte = s["halte"] as? [[String: Any]]
             {
               segment.arrival = Segment.Stop(
                 place: place, time: time, platform: halte.last?["gleis"] as? String
               )
               if let estTimeString = s["ezAnkunftsZeitpunkt"] as? String {
-                segment.arrival!.estTime = formatter.date(from: estTimeString + "Z")
+                segment.arrival!.estTime = formatter.date(from: estTimeString)
               }
             } else {
               log("Arrival init failed")
