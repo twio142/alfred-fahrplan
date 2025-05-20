@@ -149,3 +149,24 @@ func notify(_ message: String, title: String = "Fahrplan", subtitle: String = ""
   ]
   task.launch()
 }
+
+func prep(_ text: String) -> String {
+  var text = text.trimmingCharacters(in: .whitespacesAndNewlines)
+  let replacements: [String: String] = [
+    "u\u{0308}": "\u{00FC}", // ü
+    "U\u{0308}": "\u{00DC}", // Ü
+    "o\u{0308}": "\u{00F6}", // ö
+    "O\u{0308}": "\u{00D6}", // Ö
+    "a\u{0308}": "\u{00E4}", // ä
+    "A\u{0308}": "\u{00C4}", // Ä
+    "e\u{0301}": "\u{00E9}", // é
+    "e\u{0300}": "\u{00E8}", // è
+    "c\u{0327}": "\u{00E7}", // ç
+    "n\u{0303}": "\u{00F1}", // ñ
+    "N\u{0303}": "\u{00D1}", // Ñ
+  ]
+  for (pattern, replacement) in replacements {
+    text = text.replacingOccurrences(of: pattern, with: replacement)
+  }
+  return text
+}

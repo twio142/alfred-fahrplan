@@ -17,7 +17,7 @@ if !fileManager.fileExists(atPath: cacheDir) {
   }
 }
 
-let query = CommandLine.arguments.count > 1 ? CommandLine.arguments[1] : ""
+let query = prep(CommandLine.arguments.count > 1 ? CommandLine.arguments[1] : "")
 if let mode = env["mode"] {
   let workflow = Workflow()
   let group = DispatchGroup()
