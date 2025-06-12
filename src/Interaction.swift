@@ -100,7 +100,7 @@ func setPlace(
   }
   group.wait()
   if !query.isEmpty {
-    places = places.filter { $0.name.lowercased().contains(query.lowercased()) }
+    places = places.filter { $0.name.folding(options: [.diacriticInsensitive, .caseInsensitive], locale: .current).contains(query.folding(options: [.diacriticInsensitive, .caseInsensitive], locale: .current)) }
   }
   if query.count > 5 {
     searchPlaces(query, group) { result in
