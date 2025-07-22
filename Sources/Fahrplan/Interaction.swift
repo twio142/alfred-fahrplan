@@ -222,7 +222,7 @@ func listTrips(_ trips: [Trip], _ reference: [String: String]?, _ workflow: Work
       title: title,
       subtitle: tripSubtitle(subtitle),
       icon: Item.Icon(path: "./icons/trip\(expired ? "_exp" : "").png"),
-      text: Item.Text(copy: timeTable(trip)),
+      text: Item.Text(copy: timeTable(trip), largetype: timeTable(trip)),
       variables: ["tripId": trip.id, "paging": "", "mode": "cachedTrips"]
     )
     workflow.add(item)
@@ -275,9 +275,10 @@ func showTrip(_ trip: Trip, _ workflow: Workflow) {
         workflow.add(
           Item(
             title: segmentTitle(segment.departure!), subtitle: segmentSubtitle(segment),
-            arg: env["trip"] ?? "", text: Item.Text(copy: timeTable(trip)),
+            arg: env["trip"] ?? "", text: Item.Text(copy: timeTable(trip), largetype: timeTable(trip)),
             variables: ["tripId": ""]
-          ))
+          )
+        )
       }
       var item = Item(
         title: segmentTitle(segment.arrival!), arg: env["trip"] ?? "",
