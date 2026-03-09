@@ -272,11 +272,10 @@ func searchTrips(
             log("Trip init failed")
             return nil
           }
-          let trip = Trip(
+          return Trip(
             id: id, segments: segments, changes: changes, duration: duration,
             estDuration: estDuration, warnings: warnings
           )
-          return trip
         }.compactMap { $0 }
         completion(.success((trips, reference)))
       } else {

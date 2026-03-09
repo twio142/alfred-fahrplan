@@ -1,28 +1,29 @@
 import Foundation
 
 func favoritePlaces() -> [Place] {
-  let url = URL(fileURLWithPath: "./places.txt")
+  guard let dataDir = env["alfred_workflow_data"] else { return [] }
+  let url = URL(fileURLWithPath: "\(dataDir)/places.txt")
   do {
     let data = try String(contentsOf: url, encoding: .utf8)
     let lines = data.components(separatedBy: .newlines)
-    let places = lines.map { line -> Place? in
+    return lines.map { line -> Place? in
       if let part = line.components(separatedBy: "@").first(where: { $0.starts(with: "O=") }) {
         return Place(id: line, name: String(part.dropFirst(2)))
       }
       return nil
     }.compactMap { $0 }
-    return places
   } catch {
     return []
   }
 }
 
 func getHome(_ group: DispatchGroup, completion: @escaping (Result<Place, MyError>) -> Void) {
-  if let home = env["home"] {
-    let url = URL(fileURLWithPath: "./home.txt")
+  if let home = env["home"], let dataDir = env["alfred_workflow_data"] {
+    let url = URL(fileURLWithPath: "\(dataDir)/home.txt")
     do {
       let lines = try String(contentsOf: url, encoding: .utf8).components(
-        separatedBy: CharacterSet.newlines)
+        separatedBy: CharacterSet.newlines
+      )
       if lines[0] == home, lines.count > 1, lines[1].firstIndex(of: "@") != nil {
         completion(.success(Place(id: lines[1], name: "Home")))
         return
@@ -56,14 +57,16 @@ func getHome(_ group: DispatchGroup, completion: @escaping (Result<Place, MyErro
 }
 
 func savePlace(_ placeId: String) {
+  guard let dataDir = env["alfred_workflow_data"] else { return }
   let fileManager = FileManager.default
-  let url = URL(fileURLWithPath: "./places.txt")
+  let url = URL(fileURLWithPath: "\(dataDir)/places.txt")
   do {
     if !fileManager.fileExists(atPath: url.path) {
       try "".write(to: url, atomically: true, encoding: .utf8)
     }
     var lines = try String(contentsOf: url, encoding: .utf8).components(
-      separatedBy: CharacterSet.newlines)
+      separatedBy: CharacterSet.newlines
+    )
     if lines.contains(placeId) {
       return
     }
@@ -76,14 +79,16 @@ func savePlace(_ placeId: String) {
 }
 
 func removePlace(_ placeId: String) {
+  guard let dataDir = env["alfred_workflow_data"] else { return }
   let fileManager = FileManager.default
-  let url = URL(fileURLWithPath: "./places.txt")
+  let url = URL(fileURLWithPath: "\(dataDir)/places.txt")
   do {
     if !fileManager.fileExists(atPath: url.path) {
       return
     }
     var lines = try String(contentsOf: url, encoding: .utf8).components(
-      separatedBy: CharacterSet.newlines)
+      separatedBy: CharacterSet.newlines
+    )
     if !lines.contains(placeId) {
       return
     }

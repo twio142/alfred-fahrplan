@@ -5,15 +5,22 @@ guard let cacheDir = env["alfred_workflow_cache"] else {
   exit(1)
 }
 
+guard let dataDir = env["alfred_workflow_data"] else {
+  log("alfred_workflow_data not set")
+  exit(1)
+}
+
 let fileManager = FileManager.default
-if !fileManager.fileExists(atPath: cacheDir) {
-  do {
-    try fileManager.createDirectory(
-      atPath: cacheDir, withIntermediateDirectories: true, attributes: nil
-    )
-  } catch {
-    log("Error creating cache directory \(cacheDir): \(error.localizedDescription)")
-    exit(1)
+for dir in [cacheDir, dataDir] {
+  if !fileManager.fileExists(atPath: dir) {
+    do {
+      try fileManager.createDirectory(
+        atPath: dir, withIntermediateDirectories: true, attributes: nil
+      )
+    } catch {
+      log("Error creating directory \(dir): \(error.localizedDescription)")
+      exit(1)
+    }
   }
 }
 
