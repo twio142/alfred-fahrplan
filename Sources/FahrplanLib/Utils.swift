@@ -1,6 +1,6 @@
 import Foundation
 
-func formatDuration(_ seconds: Int) -> String? {
+package func formatDuration(_ seconds: Int) -> String? {
   let hours = seconds / 3600
   let minutes = (seconds % 3600) / 60
   if hours == 0, minutes == 0 {
@@ -9,7 +9,7 @@ func formatDuration(_ seconds: Int) -> String? {
   return String(format: "%@%d min", hours > 0 ? "\(hours) h " : "", minutes)
 }
 
-func tripSubtitle(_ parts: [String]) -> String {
+package func tripSubtitle(_ parts: [String]) -> String {
   if parts.count != 3 {
     log("Invalid Subtitle")
     return ""
@@ -32,7 +32,7 @@ func tripSubtitle(_ parts: [String]) -> String {
   return subtitle
 }
 
-func segmentTitle(_ stop: Segment.Stop) -> String {
+package func segmentTitle(_ stop: Segment.Stop) -> String {
   let formatter = DateFormatter()
   formatter.dateFormat = "HH:mm"
   var title = formatter.string(from: stop.time)
@@ -44,7 +44,7 @@ func segmentTitle(_ stop: Segment.Stop) -> String {
   return title
 }
 
-func segmentSubtitle(_ segment: Segment) -> String {
+package func segmentSubtitle(_ segment: Segment) -> String {
   var subtitle = ""
   if let duration = formatDuration(segment.duration) {
     subtitle += duration + "\t"
@@ -54,7 +54,7 @@ func segmentSubtitle(_ segment: Segment) -> String {
   return subtitle
 }
 
-func timeTable(_ trip: Trip) -> String {
+package func timeTable(_ trip: Trip) -> String {
   /*
    Hamburg Hbf  ->  Saafbrücken Hbf
    ====
@@ -96,7 +96,7 @@ func timeTable(_ trip: Trip) -> String {
   return table
 }
 
-func writeCache(_ key: String, _ data: DataToCache) {
+package func writeCache(_ key: String, _ data: DataToCache) {
   if let cacheDir = env["alfred_workflow_cache"] {
     let url = URL(fileURLWithPath: cacheDir).appendingPathComponent(key)
     let encoder = JSONEncoder()
@@ -112,7 +112,7 @@ func writeCache(_ key: String, _ data: DataToCache) {
   }
 }
 
-func readCache(_ key: String) -> DataToCache? {
+package func readCache(_ key: String) -> DataToCache? {
   if let cacheDir = env["alfred_workflow_cache"] {
     let fileManager = FileManager.default
     let url = URL(fileURLWithPath: cacheDir).appendingPathComponent(key)
@@ -140,7 +140,7 @@ func readCache(_ key: String) -> DataToCache? {
   }
 }
 
-func notify(_ message: String, title: String = "Fahrplan", subtitle: String = "") {
+package func notify(_ message: String, title: String = "Fahrplan", subtitle: String = "") {
   let task = Process()
   task.launchPath = "/opt/homebrew/bin/terminal-notifier"
   task.arguments = [
@@ -150,7 +150,7 @@ func notify(_ message: String, title: String = "Fahrplan", subtitle: String = ""
   task.launch()
 }
 
-func prep(_ text: String) -> String {
+package func prep(_ text: String) -> String {
   var text = text.trimmingCharacters(in: .whitespacesAndNewlines)
   let replacements: [String: String] = [
     "u\u{0308}": "\u{00FC}", // ü

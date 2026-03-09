@@ -1,6 +1,6 @@
 import Foundation
 
-func setTime(_ query: String, _ workflow: Workflow) {
+package func setTime(_ query: String, _ workflow: Workflow) {
   var dateTime = Date()
   guard let regex1 = try? NSRegularExpression(pattern: "([0123]?\\d)\\.([012]?\\d)", options: []),
         let regex2 = try? NSRegularExpression(pattern: "([012]?\\d):(\\d{2})?", options: []),
@@ -85,7 +85,7 @@ func setTime(_ query: String, _ workflow: Workflow) {
   workflow.add(item)
 }
 
-func setStop(
+package func setStop(
   _ query: String, _ workflow: Workflow, _ group: DispatchGroup,
   completion: @escaping (Result<Void, MyError>) -> Void
 ) {
@@ -168,7 +168,7 @@ func setStop(
   return completion(.success(()))
 }
 
-func listTrips(_ trips: [Trip], _ reference: [String: String]?, _ workflow: Workflow) {
+package func listTrips(_ trips: [Trip], _ reference: [String: String]?, _ workflow: Workflow) {
   let formatter = DateFormatter()
   formatter.dateFormat = "HH:mm"
   for trip in trips {
@@ -253,22 +253,7 @@ func listTrips(_ trips: [Trip], _ reference: [String: String]?, _ workflow: Work
   }
 }
 
-func showTrip(_ trip: Trip, _ workflow: Workflow) {
-  /*
-   12:28 (+7)  Hamburg Hbf (Gl. 8)
-   4h 21 min   ICE 777 (nach Frankfurt(Main)Hbf)
-   16:56       Frankfurt(Main)Hbf (Gl. 13)
-   30 min      Umstieg
-   17:26       Frankfurt(Main)Hbf (Gl. 18)
-   2h 47min    RE 3 (nach Saafbrücken Hbf)
-   20:13       Saafbrücken Hbf
-   5 min       154m Fußweg (ca. 4min)
-   20:18       Hauptbahnhof, Saarbrücken
-   9 min       STB 1 (nach Brebach)
-   20:27       Kieselhumes, Saarbrücken
-               142m Fußweg (ca. 3min)
-   20:30       Saarbrücken - Sankt Johann, Straße des 13. Januar 12
-   */
+package func showTrip(_ trip: Trip, _ workflow: Workflow) {
   for (index, segment) in trip.segments.enumerated() {
     if segment.by!.name != "Fußweg" || index == trip.segments.count - 1 {
       if segment.by!.name != "Fußweg" {

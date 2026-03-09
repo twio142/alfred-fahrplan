@@ -1,17 +1,17 @@
 import Foundation
 
-struct MyError: Error {
-  let localizedDescription: String
-  init(_ message: String) {
+package struct MyError: Error {
+  package let localizedDescription: String
+  package init(_ message: String) {
     localizedDescription = message
   }
 
-  static func message(_ message: String) -> MyError {
+  package static func message(_ message: String) -> MyError {
     return MyError(message)
   }
 }
 
-func log(_ info: Any...) {
+package func log(_ info: Any...) {
   for i in info {
     if let data = (String(describing: i) + " ").data(using: .utf8) {
       FileHandle.standardError.write(data)
@@ -20,10 +20,10 @@ func log(_ info: Any...) {
   FileHandle.standardError.write("\n".data(using: .utf8)!)
 }
 
-func debug(_ info: Any...) {
+package func debug(_ info: Any...) {
   if env["debug"] != nil || env["alfred_debug"] != nil {
     log(info)
   }
 }
 
-let env = ProcessInfo.processInfo.environment
+package let env = ProcessInfo.processInfo.environment

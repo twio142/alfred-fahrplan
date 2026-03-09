@@ -1,12 +1,12 @@
 import Foundation
 
-struct Search: Codable, Equatable {
-  let SOID: String
-  let ZOID: String
-  let isArrival: Bool
-  let dateTime: Date
-  var paging: String? = nil
-  init(
+package struct Search: Codable, Equatable {
+  package let SOID: String
+  package let ZOID: String
+  package let isArrival: Bool
+  package let dateTime: Date
+  package var paging: String? = nil
+  package init(
     SOID: String, ZOID: String, dateTime: Date? = nil, isArrival: Bool? = false,
     paging: String? = nil
   ) {
@@ -17,12 +17,12 @@ struct Search: Codable, Equatable {
     self.paging = paging
   }
 
-  static func == (lhs: Search, rhs: Search) -> Bool {
+  package static func == (lhs: Search, rhs: Search) -> Bool {
     return lhs.SOID == rhs.SOID && lhs.ZOID == rhs.ZOID && lhs.isArrival == rhs.isArrival
       && lhs.dateTime == rhs.dateTime
   }
 
-  func copy(
+  package func copy(
     SOID: String? = nil, ZOID: String? = nil, dateTime: Date? = nil, isArrival: Bool? = nil,
     paging: String? = nil
   ) -> Search {
@@ -33,12 +33,12 @@ struct Search: Codable, Equatable {
   }
 }
 
-struct Stop: Codable, Equatable {
-  let id: String
-  var name: String
-  let type: String
-  var extId: String?
-  init(id: String, name: String? = nil, type: String? = nil, extId: String? = nil) {
+package struct Stop: Codable, Equatable {
+  package let id: String
+  package var name: String
+  package let type: String
+  package var extId: String?
+  package init(id: String, name: String? = nil, type: String? = nil, extId: String? = nil) {
     self.id = id
     self.extId = extId
     if let name = name {
@@ -57,19 +57,28 @@ struct Stop: Codable, Equatable {
     }
   }
 
-  static func == (lhs: Stop, rhs: Stop) -> Bool {
+  package static func == (lhs: Stop, rhs: Stop) -> Bool {
     return lhs.id == rhs.id
   }
 }
 
-struct Trip: Codable {
-  let id: String
-  var segments: [Segment]
-  let changes: Int
-  let duration: Int
-  let estDuration: Int?
-  let warnings: [String]?
-  func getTripString() -> String {
+package struct Trip: Codable {
+  package let id: String
+  package var segments: [Segment]
+  package let changes: Int
+  package let duration: Int
+  package let estDuration: Int?
+  package let warnings: [String]?
+  package init(id: String, segments: [Segment], changes: Int, duration: Int, estDuration: Int?, warnings: [String]?) {
+    self.id = id
+    self.segments = segments
+    self.changes = changes
+    self.duration = duration
+    self.estDuration = estDuration
+    self.warnings = warnings
+  }
+
+  package func getTripString() -> String {
     guard let firstSegment = segments.first,
           let lastSegment = segments.last,
           let departure = firstSegment.departure,
@@ -81,34 +90,57 @@ struct Trip: Codable {
   }
 }
 
-struct Segment: Codable {
-  struct Stop: Codable {
-    var name: String
-    var time: Date
-    var estTime: Date?
-    var platform: String?
+package struct Segment: Codable {
+  package struct Stop: Codable {
+    package var name: String
+    package var time: Date
+    package var estTime: Date?
+    package var platform: String?
+    package init(name: String, time: Date, estTime: Date? = nil, platform: String? = nil) {
+      self.name = name
+      self.time = time
+      self.estTime = estTime
+      self.platform = platform
+    }
   }
 
-  struct By: Codable {
-    var distance: Int?
-    let name: String
-    var shortName: String?
-    var direction: String?
+  package struct By: Codable {
+    package var distance: Int?
+    package let name: String
+    package var shortName: String?
+    package var direction: String?
+    package init(distance: Int? = nil, name: String, shortName: String? = nil, direction: String? = nil) {
+      self.distance = distance
+      self.name = name
+      self.shortName = shortName
+      self.direction = direction
+    }
   }
 
-  var departure: Stop?
-  var arrival: Stop?
-  var by: By?
-  let duration: Int
+  package var departure: Stop?
+  package var arrival: Stop?
+  package var by: By?
+  package let duration: Int
+  package init(departure: Stop? = nil, arrival: Stop? = nil, by: By? = nil, duration: Int) {
+    self.departure = departure
+    self.arrival = arrival
+    self.by = by
+    self.duration = duration
+  }
 }
 
-struct DataToCache: Codable {
-  let search: Search
-  var trips: [Trip]
-  var reference: [String: String]
+package struct DataToCache: Codable {
+  package let search: Search
+  package var trips: [Trip]
+  package var reference: [String: String]
+  package init(search: Search, trips: [Trip], reference: [String: String]) {
+    self.search = search
+    self.trips = trips
+    self.reference = reference
+  }
 }
 
-func searchStops(_ query: String, _ group: DispatchGroup, completion: @escaping (Result<[Stop], MyError>) -> Void) {
+package func searchStops(_ query: String, _ group: DispatchGroup, completion: @escaping (Result<[Stop], MyError>) -> Void) {
   guard let encodedQuery = query.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)
   else {
     completion(.failure(.message("1: Invalid Query")))
@@ -139,7 +171,7 @@ func searchStops(_ query: String, _ group: DispatchGroup, completion: @escaping 
   task.resume()
 }
 
-func searchTrips(
+package func searchTrips(
   _ search: Search, _ group: DispatchGroup,
   completion: @escaping (Result<(trips: [Trip], reference: [String: String]), MyError>) -> Void
 ) {

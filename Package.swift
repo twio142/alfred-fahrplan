@@ -5,7 +5,19 @@ import PackageDescription
 
 let package = Package(
   name: "alfred-fahrplan",
+  platforms: [.macOS(.v14)],
+  dependencies: [
+    .package(url: "https://github.com/apple/swift-testing.git", from: "6.0.0"),
+  ],
   targets: [
-    .executableTarget(name: "Fahrplan"),
+    .target(name: "FahrplanLib"),
+    .executableTarget(name: "Fahrplan", dependencies: ["FahrplanLib"]),
+    .testTarget(
+      name: "FahrplanTests",
+      dependencies: [
+        "FahrplanLib",
+        .product(name: "Testing", package: "swift-testing"),
+      ]
+    ),
   ]
 )

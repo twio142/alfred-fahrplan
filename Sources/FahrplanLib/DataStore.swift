@@ -35,7 +35,7 @@ private func writeStore(_ store: DataStore) {
   }
 }
 
-func savedStops() -> [Stop] {
+package func savedStops() -> [Stop] {
   let store = readStore()
   return store.saved.compactMap { id in
     if let part = id.components(separatedBy: "@").first(where: { $0.starts(with: "O=") }) {
@@ -45,7 +45,7 @@ func savedStops() -> [Stop] {
   }
 }
 
-func getHome(_ group: DispatchGroup, completion: @escaping (Result<Stop, MyError>) -> Void) {
+package func getHome(_ group: DispatchGroup, completion: @escaping (Result<Stop, MyError>) -> Void) {
   guard let home = env["home"] else {
     completion(.failure(.message("Home not set")))
     return
@@ -73,7 +73,7 @@ func getHome(_ group: DispatchGroup, completion: @escaping (Result<Stop, MyError
   }
 }
 
-func saveStop(_ stopId: String) {
+package func saveStop(_ stopId: String) {
   var store = readStore()
   if store.saved.contains(stopId) { return }
   store.saved.append(stopId)
@@ -81,7 +81,7 @@ func saveStop(_ stopId: String) {
   notify("Stop saved")
 }
 
-func removeStop(_ stopId: String) {
+package func removeStop(_ stopId: String) {
   var store = readStore()
   if !store.saved.contains(stopId) { return }
   store.saved.removeAll { $0 == stopId }

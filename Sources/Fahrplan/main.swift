@@ -1,3 +1,4 @@
+import FahrplanLib
 import Foundation
 
 guard let cacheDir = env["alfred_workflow_cache"] else {
