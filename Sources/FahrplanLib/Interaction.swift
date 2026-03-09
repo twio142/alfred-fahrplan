@@ -103,12 +103,14 @@ package func setStop(
     stops = stops.filter { $0.name.folding(options: [.diacriticInsensitive, .caseInsensitive], locale: .current).contains(query.folding(options: [.diacriticInsensitive, .caseInsensitive], locale: .current)) }
   }
   if query.count > 5 {
+    var searchedStops: [Stop] = []
     searchStops(query, group) { result in
       if case let .success(newStops) = result {
-        stops += newStops.filter { stop in !stops.contains(stop) }
+        searchedStops = newStops
       }
     }
     group.wait()
+    stops += searchedStops.filter { stop in !stops.contains(stop) }
   }
   var startStop: Stop?
   if let SOID = env["SOID"] {
@@ -122,6 +124,7 @@ package func setStop(
     var item = Item(title: stop.name)
     if let home = home, stop == home {
       item.icon = Item.Icon(path: "./icons/home.png")
+      item.subtitle = env["home"] ?? ""
     } else if saved.contains(stop) {
       item.icon = Item.Icon(path: "./icons/saved.png")
     } else if stop.type == "ST" {
