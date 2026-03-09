@@ -89,8 +89,8 @@ func setStop(
   _ query: String, _ workflow: Workflow, _ group: DispatchGroup,
   completion: @escaping (Result<Void, MyError>) -> Void
 ) {
-  let favorites = favoriteStops()
-  var stops = favorites
+  let saved = savedStops()
+  var stops = saved
   var home = nil as Stop?
   getHome(group) { result in
     if case let .success(stop) = result {
@@ -122,8 +122,8 @@ func setStop(
     var item = Item(title: stop.name)
     if let home = home, stop == home {
       item.icon = Item.Icon(path: "./icons/home.png")
-    } else if favorites.contains(stop) {
-      item.icon = Item.Icon(path: "./icons/favorite.png")
+    } else if saved.contains(stop) {
+      item.icon = Item.Icon(path: "./icons/saved.png")
     } else if stop.type == "ST" {
       item.icon = Item.Icon(path: "./icons/station.png")
     } else {
@@ -144,11 +144,11 @@ func setStop(
         )
       )
     } else {
-      if favorites.contains(stop) {
+      if saved.contains(stop) {
         item.setMod(
           .shift,
           Item.Mod(
-            arg: stop.id, subtitle: "Von Favoriten entfernen",
+            arg: stop.id, subtitle: "Entfernen",
             icon: Item.Icon(path: "./icons/trash.png"), variables: ["action": "removeStop"]
           )
         )
@@ -156,8 +156,8 @@ func setStop(
         item.setMod(
           .shift,
           Item.Mod(
-            arg: stop.id, subtitle: "Zu Favoriten speichern",
-            icon: Item.Icon(path: "./icons/favorite.png"), variables: ["action": "saveStop"]
+            arg: stop.id, subtitle: "Speichern",
+            icon: Item.Icon(path: "./icons/saved.png"), variables: ["action": "saveStop"]
           )
         )
       }

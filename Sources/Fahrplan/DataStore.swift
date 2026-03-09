@@ -1,6 +1,6 @@
 import Foundation
 
-private struct FavoritesStore: Codable {
+private struct DataStore: Codable {
   var saved: [String]
   var home: HomeEntry?
 
@@ -10,21 +10,21 @@ private struct FavoritesStore: Codable {
   }
 }
 
-private func favoritesURL() -> URL? {
+private func dataURL() -> URL? {
   guard let dataDir = env["alfred_workflow_data"] else { return nil }
   return URL(fileURLWithPath: "\(dataDir)/data.json")
 }
 
-private func readStore() -> FavoritesStore {
-  guard let url = favoritesURL(),
+private func readStore() -> DataStore {
+  guard let url = dataURL(),
         let data = try? Data(contentsOf: url),
-        let store = try? JSONDecoder().decode(FavoritesStore.self, from: data)
-  else { return FavoritesStore(saved: [], home: nil) }
+        let store = try? JSONDecoder().decode(DataStore.self, from: data)
+  else { return DataStore(saved: [], home: nil) }
   return store
 }
 
-private func writeStore(_ store: FavoritesStore) {
-  guard let url = favoritesURL() else { return }
+private func writeStore(_ store: DataStore) {
+  guard let url = dataURL() else { return }
   do {
     let encoder = JSONEncoder()
     encoder.outputFormatting = .prettyPrinted
@@ -35,7 +35,7 @@ private func writeStore(_ store: FavoritesStore) {
   }
 }
 
-func favoriteStops() -> [Stop] {
+func savedStops() -> [Stop] {
   let store = readStore()
   return store.saved.compactMap { id in
     if let part = id.components(separatedBy: "@").first(where: { $0.starts(with: "O=") }) {
@@ -64,7 +64,7 @@ func getHome(_ group: DispatchGroup, completion: @escaping (Result<Stop, MyError
       }
       var stop = stops[0]
       stop.name = "Home"
-      store.home = FavoritesStore.HomeEntry(address: home, id: stop.id)
+      store.home = DataStore.HomeEntry(address: home, id: stop.id)
       writeStore(store)
       completion(.success(stop))
     case let .failure(error):
