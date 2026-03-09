@@ -1,101 +1,90 @@
 import Foundation
 
-func favoritePlaces() -> [Place] {
-  guard let dataDir = env["alfred_workflow_data"] else { return [] }
-  let url = URL(fileURLWithPath: "\(dataDir)/places.txt")
+private struct FavoritesStore: Codable {
+  var saved: [String]
+  var home: HomeEntry?
+
+  struct HomeEntry: Codable {
+    var address: String
+    var id: String
+  }
+}
+
+private func favoritesURL() -> URL? {
+  guard let dataDir = env["alfred_workflow_data"] else { return nil }
+  return URL(fileURLWithPath: "\(dataDir)/data.json")
+}
+
+private func readStore() -> FavoritesStore {
+  guard let url = favoritesURL(),
+        let data = try? Data(contentsOf: url),
+        let store = try? JSONDecoder().decode(FavoritesStore.self, from: data)
+  else { return FavoritesStore(saved: [], home: nil) }
+  return store
+}
+
+private func writeStore(_ store: FavoritesStore) {
+  guard let url = favoritesURL() else { return }
   do {
-    let data = try String(contentsOf: url, encoding: .utf8)
-    let lines = data.components(separatedBy: .newlines)
-    return lines.map { line -> Place? in
-      if let part = line.components(separatedBy: "@").first(where: { $0.starts(with: "O=") }) {
-        return Place(id: line, name: String(part.dropFirst(2)))
-      }
-      return nil
-    }.compactMap { $0 }
+    let encoder = JSONEncoder()
+    encoder.outputFormatting = .prettyPrinted
+    let data = try encoder.encode(store)
+    try data.write(to: url, options: .atomic)
   } catch {
-    return []
+    log("Error writing to file \(url.path): \(error.localizedDescription)")
+  }
+}
+
+func favoritePlaces() -> [Place] {
+  let store = readStore()
+  return store.saved.compactMap { id in
+    if let part = id.components(separatedBy: "@").first(where: { $0.starts(with: "O=") }) {
+      return Place(id: id, name: String(part.dropFirst(2)))
+    }
+    return nil
   }
 }
 
 func getHome(_ group: DispatchGroup, completion: @escaping (Result<Place, MyError>) -> Void) {
-  if let home = env["home"], let dataDir = env["alfred_workflow_data"] {
-    let url = URL(fileURLWithPath: "\(dataDir)/home.txt")
-    do {
-      let lines = try String(contentsOf: url, encoding: .utf8).components(
-        separatedBy: CharacterSet.newlines
-      )
-      if lines[0] == home, lines.count > 1, lines[1].firstIndex(of: "@") != nil {
-        completion(.success(Place(id: lines[1], name: "Home")))
-        return
-      } else {
-        throw MyError("Home not found")
-      }
-    } catch {
-      searchPlaces(home, group) { result in
-        switch result {
-        case let .success(places):
-          if places.count == 0 {
-            completion(.failure(.message("Home not found")))
-            return
-          }
-          var place = places[0]
-          place.name = "Home"
-          do {
-            try "\(home)\n\(place.id)".write(to: url, atomically: true, encoding: .utf8)
-          } catch {
-            log("Error writing to file \(url.path): \(error.localizedDescription)")
-          }
-          completion(.success(place))
-        case let .failure(error):
-          completion(.failure(error))
-        }
-      }
-    }
-  } else {
+  guard let home = env["home"] else {
     completion(.failure(.message("Home not set")))
+    return
+  }
+  var store = readStore()
+  if let entry = store.home, entry.address == home {
+    completion(.success(Place(id: entry.id, name: "Home")))
+    return
+  }
+  searchPlaces(home, group) { result in
+    switch result {
+    case let .success(places):
+      if places.count == 0 {
+        completion(.failure(.message("Home not found")))
+        return
+      }
+      var place = places[0]
+      place.name = "Home"
+      store.home = FavoritesStore.HomeEntry(address: home, id: place.id)
+      writeStore(store)
+      completion(.success(place))
+    case let .failure(error):
+      completion(.failure(error))
+    }
   }
 }
 
 func savePlace(_ placeId: String) {
-  guard let dataDir = env["alfred_workflow_data"] else { return }
-  let fileManager = FileManager.default
-  let url = URL(fileURLWithPath: "\(dataDir)/places.txt")
-  do {
-    if !fileManager.fileExists(atPath: url.path) {
-      try "".write(to: url, atomically: true, encoding: .utf8)
-    }
-    var lines = try String(contentsOf: url, encoding: .utf8).components(
-      separatedBy: CharacterSet.newlines
-    )
-    if lines.contains(placeId) {
-      return
-    }
-    lines.append(placeId)
-    try lines.joined(separator: "\n").write(to: url, atomically: true, encoding: .utf8)
-    notify("Place saved")
-  } catch {
-    log("Error writing to file \(url.path): \(error.localizedDescription)")
-  }
+  var store = readStore()
+  if store.saved.contains(placeId) { return }
+  store.saved.append(placeId)
+  writeStore(store)
+  notify("Place saved")
 }
 
 func removePlace(_ placeId: String) {
-  guard let dataDir = env["alfred_workflow_data"] else { return }
-  let fileManager = FileManager.default
-  let url = URL(fileURLWithPath: "\(dataDir)/places.txt")
-  do {
-    if !fileManager.fileExists(atPath: url.path) {
-      return
-    }
-    var lines = try String(contentsOf: url, encoding: .utf8).components(
-      separatedBy: CharacterSet.newlines
-    )
-    if !lines.contains(placeId) {
-      return
-    }
-    lines.removeAll { $0 == placeId }
-    try lines.joined(separator: "\n").write(to: url, atomically: true, encoding: .utf8)
-    notify("Place removed")
-  } catch {
-    log("Error writing to file \(url.path): \(error.localizedDescription)")
-  }
+  var store = readStore()
+  if !store.saved.contains(placeId) { return }
+  store.saved.removeAll { $0 == placeId }
+  writeStore(store)
+  notify("Place removed")
 }
