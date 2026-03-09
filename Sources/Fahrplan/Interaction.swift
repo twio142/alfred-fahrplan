@@ -85,54 +85,54 @@ func setTime(_ query: String, _ workflow: Workflow) {
   workflow.add(item)
 }
 
-func setPlace(
+func setStop(
   _ query: String, _ workflow: Workflow, _ group: DispatchGroup,
   completion: @escaping (Result<Void, MyError>) -> Void
 ) {
-  let favorites = favoritePlaces()
-  var places = favorites
-  var home = nil as Place?
+  let favorites = favoriteStops()
+  var stops = favorites
+  var home = nil as Stop?
   getHome(group) { result in
-    if case let .success(place) = result {
-      home = place
-      places.append(place)
+    if case let .success(stop) = result {
+      home = stop
+      stops.append(stop)
     }
   }
   group.wait()
   if !query.isEmpty {
-    places = places.filter { $0.name.folding(options: [.diacriticInsensitive, .caseInsensitive], locale: .current).contains(query.folding(options: [.diacriticInsensitive, .caseInsensitive], locale: .current)) }
+    stops = stops.filter { $0.name.folding(options: [.diacriticInsensitive, .caseInsensitive], locale: .current).contains(query.folding(options: [.diacriticInsensitive, .caseInsensitive], locale: .current)) }
   }
   if query.count > 5 {
-    searchPlaces(query, group) { result in
-      if case let .success(newPlaces) = result {
-        places += newPlaces.filter { place in !places.contains(place) }
+    searchStops(query, group) { result in
+      if case let .success(newStops) = result {
+        stops += newStops.filter { stop in !stops.contains(stop) }
       }
     }
     group.wait()
   }
-  var startPlace: Place?
+  var startStop: Stop?
   if let SOID = env["SOID"] {
-    startPlace = Place(id: SOID)
+    startStop = Stop(id: SOID)
     if let home = home, home.id == SOID {
-      startPlace = home
+      startStop = home
     }
-    places = places.filter { $0 != startPlace }
+    stops = stops.filter { $0 != startStop }
   }
-  for place in places {
-    var item = Item(title: place.name)
-    if let home = home, place == home {
+  for stop in stops {
+    var item = Item(title: stop.name)
+    if let home = home, stop == home {
       item.icon = Item.Icon(path: "./icons/home.png")
-    } else if favorites.contains(place) {
+    } else if favorites.contains(stop) {
       item.icon = Item.Icon(path: "./icons/favorite.png")
-    } else if place.type == "ST" {
+    } else if stop.type == "ST" {
       item.icon = Item.Icon(path: "./icons/station.png")
     } else {
       item.icon = Item.Icon(path: "./icons/address.png")
     }
-    if let startPlace = startPlace {
-      item.arg = "\(startPlace.name) → \(place.name)"
-      item.setVar("trip", "\(startPlace.name) → \(place.name)")
-      item.setVar("ZOID", place.id)
+    if let startStop = startStop {
+      item.arg = "\(startStop.name) → \(stop.name)"
+      item.setVar("trip", "\(startStop.name) → \(stop.name)")
+      item.setVar("ZOID", stop.id)
       item.setVar("mode", "searchTrips")
       var modVars = item.variables
       modVars["mode"] = "setTime"
@@ -144,24 +144,24 @@ func setPlace(
         )
       )
     } else {
-      if favorites.contains(place) {
+      if favorites.contains(stop) {
         item.setMod(
           .shift,
           Item.Mod(
-            arg: place.id, subtitle: "Von Favoriten entfernen",
-            icon: Item.Icon(path: "./icons/trash.png"), variables: ["action": "removePlace"]
+            arg: stop.id, subtitle: "Von Favoriten entfernen",
+            icon: Item.Icon(path: "./icons/trash.png"), variables: ["action": "removeStop"]
           )
         )
       } else {
         item.setMod(
           .shift,
           Item.Mod(
-            arg: place.id, subtitle: "Zu Favoriten speichern",
-            icon: Item.Icon(path: "./icons/favorite.png"), variables: ["action": "savePlace"]
+            arg: stop.id, subtitle: "Zu Favoriten speichern",
+            icon: Item.Icon(path: "./icons/favorite.png"), variables: ["action": "saveStop"]
           )
         )
       }
-      item.setVar("SOID", place.id)
+      item.setVar("SOID", stop.id)
     }
     workflow.add(item)
   }
@@ -201,9 +201,9 @@ func listTrips(_ trips: [Trip], _ reference: [String: String]?, _ workflow: Work
       title += "  |  \(changes) Umstieg\(changes > 1 ? "e" : "")"
     }
     if let segment = trip.segments.first(where: { $0.by!.name != "Fußweg" }) {
-      subtitle.append(segment.departure!.place)
+      subtitle.append(segment.departure!.name)
     } else {
-      subtitle.append(trip.segments.first!.departure!.place)
+      subtitle.append(trip.segments.first!.departure!.name)
     }
     let products = trip.segments.filter { $0.by!.name != "Fußweg" }.map { segment in
       if let shortName = segment.by!.shortName, ["Bus", "S", "U"].contains(shortName) {
@@ -213,9 +213,9 @@ func listTrips(_ trips: [Trip], _ reference: [String: String]?, _ workflow: Work
     }.joined(separator: ", ")
     subtitle.append(products)
     if let segment = trip.segments.last(where: { $0.by!.name != "Fußweg" }) {
-      subtitle.append(segment.arrival!.place)
+      subtitle.append(segment.arrival!.name)
     } else {
-      subtitle.append(trip.segments.last!.arrival!.place)
+      subtitle.append(trip.segments.last!.arrival!.name)
     }
     let expired = (estDepartureTime ?? departureTime) < Date().addingTimeInterval(60)
     let item = Item(

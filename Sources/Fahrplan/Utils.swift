@@ -39,7 +39,7 @@ func segmentTitle(_ stop: Segment.Stop) -> String {
   let delay = stop.estTime.flatMap { formatDuration(Int($0.timeIntervalSince(stop.time))) }
   title += delay.flatMap { " (+\($0))" } ?? " "
   title += "\t"
-  title += stop.place
+  title += stop.name
   title += stop.platform.flatMap { " (Gl. \($0))" } ?? ""
   return title
 }
@@ -69,11 +69,11 @@ func timeTable(_ trip: Trip) -> String {
   let formatter = DateFormatter()
   formatter.dateFormat = "HH:mm"
 
-  var table = "\(trip.segments.first!.departure!.place)  →  \(trip.segments.last!.arrival!.place)\n"
+  var table = "\(trip.segments.first!.departure!.name)  →  \(trip.segments.last!.arrival!.name)\n"
   table += "====\n"
   for segment in trip.segments {
     if let departure = segment.departure {
-      table += "\(formatter.string(from: departure.time))\t\(departure.place)"
+      table += "\(formatter.string(from: departure.time))\t\(departure.name)"
       if let platform = departure.platform {
         table += " (Gl. \(platform))\n"
       } else {
@@ -84,7 +84,7 @@ func timeTable(_ trip: Trip) -> String {
       table += "\t\t\t\t\(by.name)\n"
     }
     if let arrival = segment.arrival {
-      table += "\(formatter.string(from: arrival.time))\t\(arrival.place)"
+      table += "\(formatter.string(from: arrival.time))\t\(arrival.name)"
       if let platform = arrival.platform {
         table += " (Gl. \(platform))\n"
       } else {

@@ -30,8 +30,8 @@ if let mode = env["mode"] {
   let group = DispatchGroup()
   debug(mode)
   switch mode {
-  case "setPlace":
-    setPlace(query, workflow, group) { result in
+  case "setStop":
+    setStop(query, workflow, group) { result in
       switch result {
       case .success():
         if workflow.items.count == 0 {
@@ -102,10 +102,10 @@ if let mode = env["mode"] {
   workflow.output()
 } else if let action = env["action"] {
   switch action {
-  case "savePlace":
-    savePlace(query)
-  case "removePlace":
-    removePlace(query)
+  case "saveStop":
+    saveStop(query)
+  case "removeStop":
+    removeStop(query)
   default:
     log("Invalid Action: \(action)")
   }

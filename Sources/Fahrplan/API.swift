@@ -33,7 +33,7 @@ struct Search: Codable, Equatable {
   }
 }
 
-struct Place: Codable, Equatable {
+struct Stop: Codable, Equatable {
   let id: String
   var name: String
   let type: String
@@ -57,7 +57,7 @@ struct Place: Codable, Equatable {
     }
   }
 
-  static func == (lhs: Place, rhs: Place) -> Bool {
+  static func == (lhs: Stop, rhs: Stop) -> Bool {
     return lhs.id == rhs.id
   }
 }
@@ -77,13 +77,13 @@ struct Trip: Codable {
     else {
       return ""
     }
-    return "\(departure.place) → \(arrival.place)"
+    return "\(departure.name) → \(arrival.name)"
   }
 }
 
 struct Segment: Codable {
   struct Stop: Codable {
-    var place: String
+    var name: String
     var time: Date
     var estTime: Date?
     var platform: String?
@@ -108,7 +108,7 @@ struct DataToCache: Codable {
   var reference: [String: String]
 }
 
-func searchPlaces(_ query: String, _ group: DispatchGroup, completion: @escaping (Result<[Place], MyError>) -> Void) {
+func searchStops(_ query: String, _ group: DispatchGroup, completion: @escaping (Result<[Stop], MyError>) -> Void) {
   guard let encodedQuery = query.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)
   else {
     completion(.failure(.message("1: Invalid Query")))
@@ -130,8 +130,8 @@ func searchPlaces(_ query: String, _ group: DispatchGroup, completion: @escaping
     }
     let decoder = JSONDecoder()
     do {
-      let places = try decoder.decode([Place].self, from: data)
-      completion(.success(places))
+      let stops = try decoder.decode([Stop].self, from: data)
+      completion(.success(stops))
     } catch {
       completion(.failure(.message("4: JSON parsing error")))
     }
@@ -231,13 +231,13 @@ func searchTrips(
               log("By init failed")
               return nil
             }
-            if let place = s["abfahrtsOrt"] as? String,
+            if let name = s["abfahrtsOrt"] as? String,
                let timeString = s["abfahrtsZeitpunkt"] as? String,
                let time = formatter.date(from: timeString),
                let halte = s["halte"] as? [[String: Any]]
             {
               segment.departure = Segment.Stop(
-                place: place, time: time, platform: halte.first?["gleis"] as? String
+                name: name, time: time, platform: halte.first?["gleis"] as? String
               )
               if let estTimeString = s["ezAbfahrtsZeitpunkt"] as? String {
                 segment.departure!.estTime = formatter.date(from: estTimeString)
@@ -246,13 +246,13 @@ func searchTrips(
               log("Departure init failed")
               return nil
             }
-            if let place = s["ankunftsOrt"] as? String,
+            if let name = s["ankunftsOrt"] as? String,
                let timeString = s["ankunftsZeitpunkt"] as? String,
                let time = formatter.date(from: timeString),
                let halte = s["halte"] as? [[String: Any]]
             {
               segment.arrival = Segment.Stop(
-                place: place, time: time, platform: halte.last?["gleis"] as? String
+                name: name, time: time, platform: halte.last?["gleis"] as? String
               )
               if let estTimeString = s["ezAnkunftsZeitpunkt"] as? String {
                 segment.arrival!.estTime = formatter.date(from: estTimeString)
