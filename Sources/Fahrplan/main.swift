@@ -80,9 +80,7 @@ if let mode = env["mode"] {
       switch result {
       case var .success(result):
         if paging != nil, let cache = readCache("trips"), cache.search == search {
-          result.trips = (cache.trips + result.trips).sorted(by: {
-            $0.segments[0].departure!.time < $1.segments[0].departure!.time
-          })
+          result.trips = mergeAndSort(cached: cache.trips, new: result.trips)
         }
         if result.trips.count == 0 {
           workflow.warnEmpty("No Results")

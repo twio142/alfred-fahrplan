@@ -295,6 +295,10 @@ package func searchTrips(
             }
             return segment
           }.compactMap { $0 }
+          guard !segments.isEmpty else {
+            log("Trip has no valid segments, skipping")
+            return nil
+          }
           guard let id = t["tripId"] as? String,
                 let duration = t["verbindungsDauerInSeconds"] as? Int,
                 let estDuration = t["ezVerbindungsDauerInSeconds"] as? Int?,

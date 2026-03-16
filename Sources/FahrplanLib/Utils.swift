@@ -96,6 +96,17 @@ package func timeTable(_ trip: Trip) -> String {
   return table
 }
 
+package func mergeAndSort(cached: [Trip], new: [Trip]) -> [Trip] {
+  let cachedIds = Set(cached.map { $0.id })
+  let newTrips = new.filter { !cachedIds.contains($0.id) }
+  var merged = cached + newTrips
+  merged.sort {
+    ($0.segments.first?.departure?.time ?? Date.distantPast)
+      < ($1.segments.first?.departure?.time ?? Date.distantPast)
+  }
+  return merged
+}
+
 package func writeCache(_ key: String, _ data: DataToCache) {
   if let cacheDir = env["alfred_workflow_cache"] {
     let url = URL(fileURLWithPath: cacheDir).appendingPathComponent(key)

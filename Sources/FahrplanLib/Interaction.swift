@@ -233,15 +233,20 @@ package func listTrips(_ trips: [Trip], _ reference: [String: String]?, _ workfl
   if workflow.items.count == 0 {
     workflow.warnEmpty("No Results")
   } else if let reference = reference {
-    var item = Item(
-      title: "Mehr Verbindungen", subtitle: "Später", icon: Item.Icon(path: "./icons/next.png"),
-      variables: ["paging": reference["later"]!, "mode": "searchTrips"]
-    )
-    item.setMod(
-      .cmd,
-      Item.Mod(
-        subtitle: "Früher", icon: Item.Icon(path: "./icons/previous.png"),
-        variables: ["paging": reference["earlier"]!, "mode": "searchTrips"]
+    var item = Item(title: "Mehr Verbindungen", valid: false)
+    if let paging = reference["later"] {
+      item.valid = true
+      item.subtitle = "Später"
+      item.icon = Item.Icon(path: "./icons/next.png")
+      item.variables = ["paging": paging, "mode": "searchTrips"]
+    }
+    if let paging = reference["earlier"] {
+      item.setMod(
+        .cmd,
+        Item.Mod(
+          subtitle: "Früher", icon: Item.Icon(path: "./icons/previous.png"),
+          variables: ["paging": paging, "mode": "searchTrips"]
+        )
       )
     )
     let newDateTime = ISO8601DateFormatter().string(from: Date().addingTimeInterval(60 * 2))
