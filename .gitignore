@@ -8,3 +8,6 @@ prefs.plist
 icons/
 icon.png
 make.log
+.claude/
+.specify/templates/
+.specify/scripts/
