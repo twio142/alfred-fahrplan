@@ -88,6 +88,7 @@ if let mode = env["mode"] {
           writeCache(
             "trips", DataToCache(search: search, trips: result.trips, reference: result.reference)
           )
+          recordSearch(originId: search.SOID, destinationId: search.ZOID)
           listTrips(result.trips, result.reference, workflow)
         }
       case let .failure(error):
@@ -95,6 +96,8 @@ if let mode = env["mode"] {
       }
     }
     group.wait()
+  case "listHistory":
+    listHistory(workflow)
   default:
     workflow.warnEmpty("Invalid Mode: \(mode)")
   }

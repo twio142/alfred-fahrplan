@@ -81,6 +81,19 @@
 				<false/>
 			</dict>
 		</array>
+		<key>D83E17E4-20AE-43C0-9047-43930AAF1766</key>
+		<array>
+			<dict>
+				<key>destinationuid</key>
+				<string>CA4397E0-B55A-436D-AD20-FA3F81BF25A8</string>
+				<key>modifiers</key>
+				<integer>0</integer>
+				<key>modifiersubtext</key>
+				<string></string>
+				<key>vitoclose</key>
+				<true/>
+			</dict>
+		</array>
 	</dict>
 	<key>createdby</key>
 	<string>twio142</string>
@@ -171,14 +184,6 @@ mode=${mode:-setStop} ./Fahrplan "$1"</string>
 			<integer>3</integer>
 		</dict>
 		<dict>
-			<key>type</key>
-			<string>alfred.workflow.utility.hidealfred</string>
-			<key>uid</key>
-			<string>FFC39109-E3B3-4D63-B5AE-BF718C96F187</string>
-			<key>version</key>
-			<integer>1</integer>
-		</dict>
-		<dict>
 			<key>config</key>
 			<dict>
 				<key>externaltriggerid</key>
@@ -194,6 +199,19 @@ mode=${mode:-setStop} ./Fahrplan "$1"</string>
 			<string>alfred.workflow.output.callexternaltrigger</string>
 			<key>uid</key>
 			<string>67D31461-3D20-412A-A770-4007494F2F5E</string>
+			<key>version</key>
+			<integer>1</integer>
+		</dict>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>unstackview</key>
+				<false/>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.utility.hidealfred</string>
+			<key>uid</key>
+			<string>FFC39109-E3B3-4D63-B5AE-BF718C96F187</string>
 			<key>version</key>
 			<integer>1</integer>
 		</dict>
@@ -279,6 +297,56 @@ mode=cachedTrips ./Fahrplan</string>
 			<key>version</key>
 			<integer>3</integer>
 		</dict>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>alfredfiltersresults</key>
+				<true/>
+				<key>alfredfiltersresultsmatchmode</key>
+				<integer>0</integer>
+				<key>argumenttreatemptyqueryasnil</key>
+				<true/>
+				<key>argumenttrimmode</key>
+				<integer>0</integer>
+				<key>argumenttype</key>
+				<integer>1</integer>
+				<key>escaping</key>
+				<integer>102</integer>
+				<key>keyword</key>
+				<string>{var:keyword}/</string>
+				<key>queuedelaycustom</key>
+				<integer>3</integer>
+				<key>queuedelayimmediatelyinitially</key>
+				<true/>
+				<key>queuedelaymode</key>
+				<integer>0</integer>
+				<key>queuemode</key>
+				<integer>1</integer>
+				<key>runningsubtext</key>
+				<string></string>
+				<key>script</key>
+				<string>[ -x Fahrplan ] || make build
+mode=listHistory ./Fahrplan</string>
+				<key>scriptargtype</key>
+				<integer>1</integer>
+				<key>scriptfile</key>
+				<string></string>
+				<key>subtext</key>
+				<string></string>
+				<key>title</key>
+				<string></string>
+				<key>type</key>
+				<integer>11</integer>
+				<key>withspace</key>
+				<true/>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.input.scriptfilter</string>
+			<key>uid</key>
+			<string>D83E17E4-20AE-43C0-9047-43930AAF1766</string>
+			<key>version</key>
+			<integer>3</integer>
+		</dict>
 	</array>
 	<key>readme</key>
 	<string></string>
@@ -319,10 +387,17 @@ mode=cachedTrips ./Fahrplan</string>
 			<key>ypos</key>
 			<real>50</real>
 		</dict>
+		<key>D83E17E4-20AE-43C0-9047-43930AAF1766</key>
+		<dict>
+			<key>xpos</key>
+			<real>30</real>
+			<key>ypos</key>
+			<real>240</real>
+		</dict>
 		<key>FFC39109-E3B3-4D63-B5AE-BF718C96F187</key>
 		<dict>
 			<key>xpos</key>
-			<real>235</real>
+			<real>360</real>
 			<key>ypos</key>
 			<real>45</real>
 		</dict>

@@ -31,6 +31,8 @@ Deutsche Bahn connections from Alfred.
 
 `db.` reopens the last search instantly.
 
+`db/` shows recent and frequent trips.
+
 ## Configuration
 
 Alfred Preferences → Workflows → Fahrplan → **Configure Workflow**.

@@ -261,6 +261,42 @@ package func listTrips(_ trips: [Trip], _ reference: [String: String]?, _ workfl
   }
 }
 
+package func listHistory(_ workflow: Workflow) {
+  let entries = readHistory()
+  if entries.isEmpty {
+    workflow.warnEmpty("Keine bisherigen Verbindungen")
+    return
+  }
+  let threshold = Date().addingTimeInterval(-3600) // 1 hour
+  let recent = entries
+    .filter { $0.lastSearched >= threshold }
+    .sorted { $0.lastSearched > $1.lastSearched }
+  let older = entries
+    .filter { $0.lastSearched < threshold }
+    .sorted { $0.count != $1.count ? $0.count > $1.count : $0.lastSearched > $1.lastSearched }
+  for entry in recent + older {
+    let origin = Stop(id: entry.originId)
+    let destination = Stop(id: entry.destinationId)
+    let title = "\(origin.name) → \(destination.name)"
+    var item = Item(
+      title: title,
+      subtitle: "\(entry.count)x gesucht",
+      icon: Item.Icon(path: "./icons/trip.png"),
+      variables: ["mode": "searchTrips", "SOID": entry.originId, "ZOID": entry.destinationId, "trip": title]
+    )
+    var modVars = item.variables
+    modVars["mode"] = "setTime"
+    item.setMod(
+      .cmd,
+      Item.Mod(
+        arg: "", subtitle: "Zeit angeben …", icon: Item.Icon(path: "./icons/clock.png"),
+        variables: modVars
+      )
+    )
+    workflow.add(item)
+  }
+}
+
 package func showTrip(_ trip: Trip, _ workflow: Workflow) {
   for (index, segment) in trip.segments.enumerated() {
     if segment.by!.name != "Fußweg" || index == trip.segments.count - 1 {

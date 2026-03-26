@@ -32,8 +32,9 @@ Alfred sets `mode` before invoking the binary. `main.swift` switches on it:
 |---------------|-------------------|-------------------------------------------|
 | `setStop`     | `setStop()`       | Search stations; show saved + API results |
 | `setTime`     | `setTime()`       | Parse time/date input and store in cache  |
-| `searchTrips` | `searchTrips()`   | Hit DB API and write trips to cache       |
+| `searchTrips` | `searchTrips()`   | Hit DB API, write trips to cache, record search in history |
 | `cachedTrips` | `listTrips()` / `showTrip()` | Read cache and display results |
+| `listHistory` | `listHistory()`   | Show ranked history: last-hour entries by recency, older by frequency |
 
 ### Library modules
 
@@ -48,7 +49,7 @@ Alfred sets `mode` before invoking the binary. `main.swift` switches on it:
 
 ### Storage
 
-- **Data dir** (`$alfred_workflow_data`): saved favourite stops and home station (JSON)
+- **Data dir** (`$alfred_workflow_data`): saved favourite stops, home station, and search history (JSON)
 - **Cache dir** (`$alfred_workflow_cache`): current trip results for pagination / drill-down
 
 ## Testing
@@ -58,3 +59,10 @@ Uses the `swift-testing` framework (not XCTest). Tests live in `Tests/FahrplanTe
 - `APIIntegrationTests.swift` — integration tests against the real DB API (network required)
 
 Run a single test file: `swift test --filter FahrplanTests`
+
+## Active Technologies
+- Swift 6.0, macOS 14+ + Foundation (stdlib) — no new SPM dependencies (001-recent-frequent-connections)
+- `$alfred_workflow_data/history.json` — JSON array, ISO 8601 dates (001-recent-frequent-connections)
+
+## Recent Changes
+- 001-recent-frequent-connections: Added Swift 6.0, macOS 14+ + Foundation (stdlib) — no new SPM dependencies

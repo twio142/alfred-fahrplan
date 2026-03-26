@@ -88,3 +88,55 @@ package func removeStop(_ stopId: String) {
   writeStore(store)
   notify("Stop removed")
 }
+
+// MARK: - Search History
+
+package struct HistoryEntry: Codable {
+  var originId: String
+  var destinationId: String
+  var lastSearched: Date
+  var count: Int
+}
+
+private func historyURL() -> URL? {
+  guard let dataDir = env["alfred_workflow_data"] else { return nil }
+  return URL(fileURLWithPath: "\(dataDir)/history.json")
+}
+
+package func readHistory() -> [HistoryEntry] {
+  guard let url = historyURL(),
+        let data = try? Data(contentsOf: url)
+  else { return [] }
+  let decoder = JSONDecoder()
+  decoder.dateDecodingStrategy = .iso8601
+  return (try? decoder.decode([HistoryEntry].self, from: data)) ?? []
+}
+
+private func writeHistory(_ entries: [HistoryEntry]) {
+  guard let url = historyURL() else { return }
+  let encoder = JSONEncoder()
+  encoder.dateEncodingStrategy = .iso8601
+  encoder.outputFormatting = .prettyPrinted
+  do {
+    let data = try encoder.encode(entries)
+    try data.write(to: url, options: .atomic)
+  } catch {
+    log("Error writing history to \(url.path): \(error.localizedDescription)")
+  }
+}
+
+package func recordSearch(originId: String, destinationId: String) {
+  var entries = readHistory()
+  let now = Date()
+  if let index = entries.firstIndex(where: { $0.originId == originId && $0.destinationId == destinationId }) {
+    entries[index].count += 1
+    entries[index].lastSearched = now
+  } else {
+    entries.append(HistoryEntry(originId: originId, destinationId: destinationId, lastSearched: now, count: 1))
+  }
+  entries.sort { $0.lastSearched > $1.lastSearched }
+  if entries.count > 50 {
+    entries = Array(entries.prefix(50))
+  }
+  writeHistory(entries)
+}
